@@ -3,11 +3,19 @@ uuid = "09b745ad-c67d-442f-94a6-c7f4d1e4d861"
 authors = ["Beforerr <zzj956959688@gmail.com> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+
+[weakdeps]
+TimeSeries = "9e3dc215-6440-5c97-bce1-76c03772f85e"
+
+[extensions]
+TimeSeriesExt = "TimeSeries"
+
 [compat]
-julia = "1.10"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
+CondaPkg = "0.2.24"
+Dates = "1.11.0"
+PythonCall = "0.9.23"
+TimeSeries = "0.24.2"
