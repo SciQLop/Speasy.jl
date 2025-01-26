@@ -1,7 +1,7 @@
 name = "Speasy"
 uuid = "09b745ad-c67d-442f-94a6-c7f4d1e4d861"
 authors = ["Beforerr <zzj956959688@gmail.com> and contributors"]
-version = "1.0.0-DEV"
+version = "0.1.0"
 
 [deps]
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
@@ -16,6 +16,5 @@ TimeSeriesExt = "TimeSeries"
 
 [compat]
 CondaPkg = "0.2.24"
-Dates = "1.11.0"
 PythonCall = "0.9.23"
 TimeSeries = "0.24.2"
