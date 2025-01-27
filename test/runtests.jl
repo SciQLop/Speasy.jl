@@ -1,5 +1,6 @@
 using Speasy
 using Test
+using TestItems, TestItemRunner
 
 @testitem "Speasy.jl" begin
     using Dates
