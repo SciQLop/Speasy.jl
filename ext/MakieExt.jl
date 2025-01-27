@@ -1,14 +1,14 @@
 module MakieExt
 using Makie
+import Makie: convert_arguments
 import Makie.SpecApi as S
 import Speasy: SpeasyVariable
 import Speasy: speasyplot, speasyplot!
 
-function Makie.convert_arguments(P::PointBased, obj::SpeasyVariable)
-    return S.Lines(obj.time, obj.values)
-end
-
-Makie.convert_arguments(P::Type{<:Series}, obj::SpeasyVariable) = S.Series(obj.time, obj.values')
+convert_arguments(P::PointBased, obj::SpeasyVariable, i::Integer) =
+    convert_arguments(P, obj.time, obj.values[:, i])
+convert_arguments(P::Type{<:Series}, obj::SpeasyVariable) =
+    convert_arguments(P, obj.time, obj.values')
 
 @recipe(SpeasyPlot, var) do scene
     Theme()
