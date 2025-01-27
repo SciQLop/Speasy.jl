@@ -2,11 +2,12 @@ module Speasy
 
 using PythonCall
 using Dates
-import Base: getproperty, propertynames
+import Base: getproperty, propertynames, getindex
 
 export speasy, SpeasyVariable
 export get_data
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize, sanitize!
+export speasyplot, speasyplot!
 
 include("utils.jl")
 include("methods.jl")
@@ -30,6 +31,9 @@ function get_data(args...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
+getindex(var::SpeasyVariable, s::String) = SpeasyVariable(var.py[s])
+getindex(var::SpeasyVariable, s::Symbol) = getindex(var, string(s))
+
 values(var) = pyconvert(Array, var.py.values)
 time(var) = pyconvert_time(var.py.time)
 columns(var) = pyconvert(Vector{Symbol}, var.py.columns)
@@ -44,4 +48,8 @@ function getproperty(var::SpeasyVariable, s::Symbol)
 end
 
 propertynames(var::SpeasyVariable) = union(fieldnames(SpeasyVariable), speasy_properties)
+
+function speasyplot end
+function speasyplot! end
+
 end

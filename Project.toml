@@ -10,11 +10,14 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [weakdeps]
 TimeSeries = "9e3dc215-6440-5c97-bce1-76c03772f85e"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 
 [extensions]
 TimeSeriesExt = "TimeSeries"
+MakieExt = "Makie"
 
 [compat]
 CondaPkg = "0.2.24"
 PythonCall = "0.9.23"
 TimeSeries = "0.24.2"
+Makie = "0.21, 0.22"

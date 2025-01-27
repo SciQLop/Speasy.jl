@@ -1,12 +1,12 @@
 using Speasy
 using Test
 
-using TimeSeries
-
-const spz = speasy
-
-@testset "Speasy.jl" begin
-    @test spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5") isa SpeasyVariable
+@testitem "Speasy.jl" begin
+    using Dates
+    const spz = speasy
+    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    @test spz_var isa SpeasyVariable
+    @test spz_var.time isa Vector{DateTime}
 
     # Dynamic inventory
     amda_tree = spz.inventories.data_tree.amda
@@ -36,7 +36,14 @@ const spz = speasy
     @test get_data(products, intervals) isa Vector{Vector{SpeasyVariable}}
 end
 
-@testset "TimeSeriesExt.jl" begin
+@testitem "TimeSeriesExt.jl" begin
+    using TimeSeries
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
-    ta = TimeArray(spz_var)
+    @test TimeArray(spz_var) isa TimeArray
+end
+
+@testitem "MakieExt.jl" begin
+    using CairoMakie
+    da = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    plot(da)
 end
