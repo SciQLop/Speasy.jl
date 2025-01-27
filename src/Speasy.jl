@@ -14,6 +14,7 @@ include("methods.jl")
 const speasy = PythonCall.pynew()
 
 function __init__()
+    println("Initializing speasy...")
     PythonCall.pycopy!(speasy, pyimport("speasy"))
 end
 
@@ -25,8 +26,8 @@ struct SpeasyVariable
 end
 
 function get_data(args...)
-    data = speasy.get_data(args...)
-    SpeasyVariable(data)
+    res = speasy.get_data(args...)
+    return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
 values(var) = pyconvert(Array, var.py.values)
