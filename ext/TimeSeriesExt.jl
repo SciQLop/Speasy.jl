@@ -1,11 +1,13 @@
 module TimeSeriesExt
 
 using Speasy
-using Speasy: time, values, columns, meta
+using Speasy: name, time, values, columns, meta
 import TimeSeries: TimeArray
 
 function TimeArray(s::SpeasyVariable)
-    return TimeArray(time(s), values(s), columns(s), meta(s))
+    colnames = columns(s)
+    colnames = length(colnames) > 2 ? colnames : [name(s)] # conventional naming for scalar variables
+    return TimeArray(time(s), values(s), colnames, meta(s))
 end
 
 end
