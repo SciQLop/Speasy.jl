@@ -10,4 +10,5 @@ function TimeArray(s::SpeasyVariable)
     return TimeArray(time(s), values(s), colnames, meta(s))
 end
 
+TimeArray(v::AbstractArray{SpeasyVariable}) = merge(TimeArray.(v)...)
 end
