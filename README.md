@@ -6,7 +6,7 @@ A simple Julia wrapper around the [Speasy](https://github.com/SciQLop/speasy), a
 
 ## Features
 
-- Integration with [`TimeSeries`](https://github.com/JuliaStats/TimeSeries.jl) and [`Makie`](https://github.com/MakieOrg/Makie.jl).
+- Integration with [`TimeSeries`](https://github.com/JuliaStats/TimeSeries.jl), [`DimensionalData`](https://github.com/rafaqz/DimensionalData.jl), [`TimeseriesToolsExt`](https://github.com/brendanjohnharris/TimeseriesTools.jl) and [`Makie`](https://github.com/MakieOrg/Makie.jl).
 
 ## Installation
 
