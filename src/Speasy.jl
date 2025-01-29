@@ -12,12 +12,7 @@ export speasyplot, speasyplot!
 include("utils.jl")
 include("methods.jl")
 
-const speasy = PythonCall.pynew()
-
-function __init__()
-    println("Initializing speasy...")
-    PythonCall.pycopy!(speasy, pyimport("speasy"))
-end
+speasy() = @pyconst(pyimport("speasy"))
 
 """
 A wrapper of `speasy.SpeasyVariable`.
@@ -27,7 +22,7 @@ struct SpeasyVariable
 end
 
 function get_data(args...)
-    res = speasy.get_data(args...)
+    res = @pyconst(pyimport("speasy").get_data)(args...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 

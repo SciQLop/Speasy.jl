@@ -4,7 +4,7 @@ using TestItems, TestItemRunner
 
 @testitem "Speasy.jl" begin
     using Dates
-    const spz = speasy
+    const spz = speasy()
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test spz_var isa SpeasyVariable
     @test spz_var.time isa Vector{DateTime}
