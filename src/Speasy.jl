@@ -2,6 +2,7 @@ module Speasy
 
 using PythonCall
 using Dates
+using Unitful
 import Base: getproperty, propertynames, getindex
 
 export speasy, SpeasyVariable
@@ -34,13 +35,23 @@ values(var) = pyconvert(Array, var.py.values)
 time(var) = pyconvert_time(var.py.time)
 columns(var) = pyconvert(Vector{Symbol}, var.py.columns)
 meta(var) = pyconvert(Dict, var.py.meta)
-units(var) = pyconvert(String, var.py.unit)
+
+function units(var)
+    u_str = pyconvert(String, var.py.unit)
+    try
+        uparse(u_str)
+    catch
+        @info "Cannot parse unit $u_str"
+        u_str
+    end
+end
 
 const speasy_properties = (:name, :values, :time, :columns, :meta, :units)
 
 function getproperty(var::SpeasyVariable, s::Symbol)
-    s in fieldnames(SpeasyVariable) && return getfield(var, s)
+    s in (:py,) && return getfield(var, s)
     s in speasy_properties && return eval(s)(var)
+    return getproperty(var.py, s)
 end
 
 propertynames(var::SpeasyVariable) = union(fieldnames(SpeasyVariable), speasy_properties)

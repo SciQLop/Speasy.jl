@@ -4,11 +4,15 @@ using TestItems, TestItemRunner
 
 @testitem "Speasy.jl" begin
     using Dates
-    const spz = speasy()
+    using Unitful
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test spz_var isa SpeasyVariable
     @test spz_var.time isa Vector{DateTime}
+    @test spz_var.units == u"nT"
+end
 
+@testitem "Dynamic inventory" begin
+    spz = speasy()
     # Dynamic inventory
     amda_tree = spz.inventories.data_tree.amda
     @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-5") isa SpeasyVariable
