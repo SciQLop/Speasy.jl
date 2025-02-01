@@ -35,15 +35,22 @@ values(var) = pyconvert(Array, var.py.values)
 time(var) = pyconvert_time(var.py.time)
 columns(var) = pyconvert(Vector{Symbol}, var.py.columns)
 meta(var) = pyconvert(Dict, var.py.meta)
+units(var) = pyconvert(String, var.py.unit)
+coord(var) = pyconvert(String, var.py.meta["COORDINATE_SYSTEM"])
 
-function units(var)
-    u_str = pyconvert(String, var.py.unit)
+function Unitful.unit(var::SpeasyVariable)
+    u_str = units(var)
     try
-        uparse(u_str)
+        return uparse(u_str)
     catch
-        @info "Cannot parse unit $u_str"
-        u_str
     end
+    try # split str by space
+        return uparse(split(u_str, " ")[1])
+    catch
+    end
+
+    @info "Cannot parse unit $u_str"
+    return 1
 end
 
 const speasy_properties = (:name, :values, :time, :columns, :meta, :units)
