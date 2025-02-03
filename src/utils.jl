@@ -6,6 +6,9 @@ Convert `time` from Python to Julia.
 Much faster than `pyconvert(Array, time)`
 """
 function pyconvert_time(time)
+    if length(time) == 0
+        return DateTime[]
+    end
     pydt_min = @pyconst(pyimport("numpy").timedelta64(1, "ns"))
     dt_min = Nanosecond(1)
     pyt0 = time[0]
