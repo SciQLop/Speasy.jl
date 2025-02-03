@@ -1,14 +1,18 @@
 module DimensionalDataExt
 using DimensionalData
 using Speasy
+using Speasy: axes
 using Unitful
 import DimensionalData: DimArray, DimStack
 
 function DimArray(v::SpeasyVariable; unit=unit(v))
     v = replace_fillval_by_nan(v)
+    axes = v.axes
     name = Symbol(v.name)
     dims = (Ti(v.time), Dim{name}(v.columns))
-    DimArray(v.values * unit, dims; name, metadata=v.meta)
+    metadata = v.meta
+    metadata["axes"] = axes
+    DimArray(v.values * unit, dims; name, metadata)
 end
 
 function DimArray(vs::AbstractArray{SpeasyVariable})
