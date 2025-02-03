@@ -9,9 +9,11 @@ export speasy, SpeasyVariable
 export get_data
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize, sanitize!
 export speasyplot, speasyplot!
+export DataSet
 
 include("utils.jl")
 include("methods.jl")
+include("dataset.jl")
 
 speasy() = @pyconst(pyimport("speasy"))
 
