@@ -5,13 +5,19 @@ using Speasy: AbstractSupportDataContainer
 using Unitful
 import DimensionalData: DimArray, DimStack
 
-function DimArray(v::SpeasyVariable; unit=unit(v))
+"""
+    DimArray(v::SpeasyVariable; unit=unit(v), add_axes=true)
+
+Convert a `SpeasyVariable` to a `DimArray`.
+By default, it adds axes and adds units. Disabling `add_axes` could improve performance.
+"""
+function DimArray(v::SpeasyVariable; unit=unit(v), add_axes=true)
     v = replace_fillval_by_nan(v)
     axes = v.axes
     name = Symbol(v.name)
     dims = (Ti(v.time), Dim{name}(v.columns))
     metadata = v.meta
-    metadata["axes"] = axes
+    add_axes && metadata["axes"] = axes
     DimArray(v.values * unit, dims; name, metadata)
 end
 

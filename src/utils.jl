@@ -29,3 +29,19 @@ function apply_recursively(data, apply_fn, check_fn)
         return apply_fn(data)
     end
 end
+
+@enum Vartype begin
+    data
+    support_data
+    metadata
+end
+
+"Convert a string to Vartype"
+function vartype(s::String)
+    s == "data" && return data
+    s == "support_data" && return support_data
+    s == "metadata" && return metadata
+    throw(ArgumentError("Invalid Vartype: $s"))
+end
+
+vartype(var) = vartype(var.meta["VAR_TYPE"])
