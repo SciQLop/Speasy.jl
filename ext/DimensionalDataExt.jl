@@ -17,7 +17,7 @@ function DimArray(v::SpeasyVariable; unit=unit(v), add_axes=true)
     name = Symbol(v.name)
     dims = (Ti(v.time), Dim{name}(v.columns))
     metadata = v.meta
-    add_axes && metadata["axes"] = axes
+    add_axes && push!(metadata, "axes" => axes)
     DimArray(v.values * unit, dims; name, metadata)
 end
 
