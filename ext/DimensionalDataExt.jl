@@ -1,7 +1,7 @@
 module DimensionalDataExt
 using DimensionalData
 using Speasy
-using Speasy: axes
+using Speasy: AbstractSupportDataContainer
 using Unitful
 import DimensionalData: DimArray, DimStack
 
@@ -13,6 +13,13 @@ function DimArray(v::SpeasyVariable; unit=unit(v))
     metadata = v.meta
     metadata["axes"] = axes
     DimArray(v.values * unit, dims; name, metadata)
+end
+
+function DimArray(v::AbstractSupportDataContainer; unit=unit(v))
+    name = Symbol(v.name)
+    data = v.values
+    dims = ndims(data) == 1 ? (Ti(),) : (Ti(), Dim{name}())
+    DimArray(data * unit, dims; name)
 end
 
 function DimArray(vs::AbstractArray{SpeasyVariable})
