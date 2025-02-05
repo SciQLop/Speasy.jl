@@ -24,6 +24,7 @@ TimeseriesToolsExt = "TimeseriesTools"
 [compat]
 CondaPkg = "0.2.24"
 Dates = "1"
+DimensionalData = "0.29"
 Makie = "0.21, 0.22"
 PythonCall = "0.9.23"
 TimeSeries = "0.24.2"
