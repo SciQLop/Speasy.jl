@@ -39,7 +39,7 @@ struct VariableAxis <: AbstractSupportDataContainer
     py::Py
 end
 
-ax_properties = (:name, :values, :units)
+ax_properties = (:name, :values, :units, :meta)
 
 function values(ax::VariableAxis)
     ax.name == "time" ? pyconvert_time(ax.py.values) : pyconvert(Array, ax.py.values)
@@ -53,3 +53,20 @@ function getproperty(var::VariableAxis, s::Symbol)
 end
 
 propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties)
+
+# Add Base.show methods for pretty printing
+function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
+    println(io, "$T:")
+    println(io, "  Name: ", name(var))
+    println(io, "  Units: ", units(var))
+    try
+        println(io, "  Coordinate System: ", coord(var))
+    catch
+        # Skip if coordinate system is not available
+    end
+    println(io, "  Shape: ", size(values(var)))
+    println(io, "  Metadata:")
+    for (key, value) in meta(var)
+        println(io, "    ", key, ": ", value)
+    end
+end
