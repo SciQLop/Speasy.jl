@@ -8,6 +8,7 @@ import Base: getproperty, propertynames, getindex
 export speasy, SpeasyVariable, VariableAxis
 export get_data
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize, sanitize!
+export isspectrogram
 export speasyplot, speasyplot!
 export DataSet
 
