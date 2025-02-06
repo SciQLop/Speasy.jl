@@ -13,6 +13,8 @@ getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
 
 name(var) = pyconvert(String, var.py.name)
 values(var) = pyconvert(Array, var.py.values)
+shape(var) = pyconvert(Tuple, var.py.shape)
+nbytes(var) = pyconvert(Int64, var.py.nbytes)
 time(var) = pyconvert_time(var.py.time)
 axes(var, i) = VariableAxis(var.py.axes[i-1])
 axes(var) = [axes(var, i) for i in 1:pylen(var.py.axes)]
@@ -58,15 +60,13 @@ propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties
 function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
     println(io, "$T:")
     println(io, "  Name: ", name(var))
+    println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
     println(io, "  Units: ", units(var))
-    try
-        println(io, "  Coordinate System: ", coord(var))
-    catch
-        # Skip if coordinate system is not available
-    end
-    println(io, "  Shape: ", size(values(var)))
+    println(io, "  Shape: ", var.shape)
+    println(io, "  Size: ", Base.format_bytes(nbytes(var)))
+    println(io, "  Columns: ", var.py.columns)
     println(io, "  Metadata:")
-    for (key, value) in meta(var)
+    for (key, value) in sort(collect(meta(var)), by=x -> x[1])
         println(io, "    ", key, ": ", value)
     end
 end
