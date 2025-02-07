@@ -60,13 +60,15 @@ propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties
 function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
     println(io, "$T:")
     println(io, "  Name: ", name(var))
-    println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
-    println(io, "  Units: ", units(var))
-    println(io, "  Shape: ", var.shape)
+    pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
+    println(io, "  Units: ", var.py.unit)
+    println(io, "  Shape: ", var.py.shape)
     println(io, "  Size: ", Base.format_bytes(nbytes(var)))
-    println(io, "  Columns: ", var.py.columns)
-    println(io, "  Metadata:")
-    for (key, value) in sort(collect(meta(var)), by=x -> x[1])
-        println(io, "    ", key, ": ", value)
+    pyhasattr(var.py, "columns") && println(io, "  Columns: ", var.py.columns)
+    if pyhasattr(var.py, "meta")
+        println(io, "  Metadata:")
+        for (key, value) in sort(collect(meta(var)), by=x -> x[1])
+            println(io, "    ", key, ": ", value)
+        end
     end
 end
