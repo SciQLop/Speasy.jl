@@ -12,7 +12,8 @@ function Unitful.unit(var::AbstractDataContainer)
     catch
     end
     try # replace space by *
-        return uparse(replace(u_str, " " => "*"))
+        u_str = replace(u_str, " " => "*", "{" => "", "}" => "", "#" => "1")
+        return uparse(u_str)
     catch
     end
     try # split str by space
