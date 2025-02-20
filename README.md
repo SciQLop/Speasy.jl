@@ -12,7 +12,7 @@ A simple Julia wrapper around [Speasy](https://github.com/SciQLop/speasy), a Pyt
 
 ```julia
 using Pkg
-Pkg.add("https://github.com/Beforerr/Speasy.jl")
+Pkg.add("Speasy.jl")
 ```
 
 ## Examples
