@@ -1,4 +1,4 @@
-module DimensionalDataExt
+module SpeasyDimensionalDataExt
 using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer

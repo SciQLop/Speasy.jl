@@ -1,4 +1,4 @@
-module TimeseriesToolsExt
+module SpeasyTimeseriesToolsExt
 using TimeseriesTools
 using Speasy
 import TimeseriesTools: ToolsArray, TimeSeries

@@ -1,4 +1,4 @@
-module MakieExt
+module SpeasyMakieExt
 using Makie
 import Makie: convert_arguments
 import Makie.SpecApi as S

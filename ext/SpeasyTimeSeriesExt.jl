@@ -1,4 +1,4 @@
-module TimeSeriesExt
+module SpeasyTimeSeriesExt
 
 using Speasy
 using Speasy: name, time, values, columns, meta
