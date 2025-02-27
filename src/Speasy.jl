@@ -18,19 +18,26 @@ include("types.jl")
 include("methods.jl")
 include("dataset.jl")
 
-speasy() = @pyconst(pyimport("speasy"))
+const speasy = PythonCall.pynew()
+const request_dispatch = PythonCall.pynew()
+
+function __init__()
+    ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
+    PythonCall.pycopy!(speasy, pyimport("speasy"))
+    PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
+end
 
 function get_data(args...)
-    res = @pyconst(pyimport("speasy").get_data)(args...)
+    res = speasy."get_data"(args...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
-init_amda() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_amda)(ignore_disabled_status=true)
-init_cdaweb() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_cdaweb)(ignore_disabled_status=true)
-init_csa() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_csa)(ignore_disabled_status=true)
-init_sscweb() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_sscweb)(ignore_disabled_status=true)
-init_archive() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_archive)(ignore_disabled_status=true)
-init_providers() = @pyconst(pyimport("speasy.core.requests_scheduling.request_dispatch").init_providers)(ignore_disabled_status=true)
+init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)
+init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status=true)
+init_csa() = request_dispatch."init_csa"(ignore_disabled_status=true)
+init_sscweb() = request_dispatch."init_sscweb"(ignore_disabled_status=true)
+init_archive() = request_dispatch."init_archive"(ignore_disabled_status=true)
+init_providers() = request_dispatch."init_providers"(ignore_disabled_status=true)
 
 function speasyplot end
 function speasyplot! end

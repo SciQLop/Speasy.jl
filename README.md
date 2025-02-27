@@ -19,7 +19,7 @@ Pkg.add("Speasy.jl")
 
 ```julia
 using Speasy
-const spz = speasy()
+const spz = speasy
 
 get_data("amda/imf", "2016-6-2", "2016-6-5")
 
