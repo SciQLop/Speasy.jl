@@ -2,6 +2,7 @@ module Speasy
 
 using PythonCall
 using Dates
+using NanoDates
 using Unitful
 import Base: getproperty, propertynames, getindex
 
