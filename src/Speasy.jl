@@ -15,8 +15,8 @@ export speasyplot, speasyplot!
 export DataSet
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
 
-include("utils.jl")
 include("types.jl")
+include("utils.jl")
 include("methods.jl")
 include("dataset.jl")
 

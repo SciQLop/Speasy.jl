@@ -1,4 +1,10 @@
-replace_fillval_by_nan(var) = SpeasyVariable(var.py.replace_fillval_by_nan())
+function replace_fillval_by_nan(var)
+    if dtype(var) <: Integer
+        return var
+    else
+        return SpeasyVariable(var.py.replace_fillval_by_nan())
+    end
+end
 replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
 sanitize!(var; kwargs...) = (var.py.sanitized(; inplace=true, kwargs...); var)
 sanitize(var; kwargs...) = SpeasyVariable(var.py.sanitized(; kwargs...))

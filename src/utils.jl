@@ -45,3 +45,38 @@ function vartype(s::String)
 end
 
 vartype(var) = vartype(var.meta["VAR_TYPE"])
+
+dtype(x) = dtype2type(string(x.dtype.name))
+dtype(x::AbstractDataContainer) = dtype(x.py)
+
+function dtype2type(dtype::String)
+    if dtype == "float16"
+        Float16
+    elseif dtype == "float32"
+        Float32
+    elseif dtype == "float64"
+        Float64
+    elseif dtype == "int8"
+        Int8
+    elseif dtype == "int16"
+        Int16
+    elseif dtype == "int32"
+        Int32
+    elseif dtype == "int64"
+        Int64
+    elseif dtype == "uint8"
+        UInt8
+    elseif dtype == "uint16"
+        UInt16
+    elseif dtype == "uint32"
+        UInt32
+    elseif dtype == "uint64"
+        UInt64
+    elseif dtype == "bool"
+        Bool
+    elseif dtype == "datetime64[ns]"
+        DateTime
+    else
+        error("Unsupported dtype: '$dtype'")
+    end
+end
