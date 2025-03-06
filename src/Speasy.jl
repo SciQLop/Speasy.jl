@@ -1,6 +1,7 @@
 module Speasy
 
 using PythonCall
+using PythonCall.Core: pyisnone
 using Dates
 using NanoDates
 using Unitful

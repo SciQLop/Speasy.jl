@@ -20,7 +20,10 @@ axes(var, i) = VariableAxis(var.py.axes[i-1])
 axes(var) = [axes(var, i) for i in 1:pylen(var.py.axes)]
 columns(var) = pyconvert(Vector{Symbol}, var.py.columns)
 meta(var) = pyconvert(Dict, var.py.meta)
-units(var) = pyconvert(String, var.py.unit)
+function units(var)
+    u = var.py.unit
+    pyisnone(u) ? "" : pyconvert(String, u)
+end
 coord(var) = pyconvert(String, var.py.meta["COORDINATE_SYSTEM"])
 
 const speasy_properties = (:name, :values, :time, :columns, :meta, :units, :axes)
