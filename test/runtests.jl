@@ -6,10 +6,11 @@ using TestItems, TestItemRunner
 
 @testitem "Speasy.jl" begin
     using Dates
+    using Dates: AbstractDateTime
     using Unitful
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test spz_var isa SpeasyVariable
-    @test spz_var.time isa Vector{DateTime}
+    @test spz_var.time isa Vector{<:AbstractDateTime}
     @test unit(spz_var) == u"nT"
 end
 
