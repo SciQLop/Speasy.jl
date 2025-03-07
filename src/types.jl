@@ -11,7 +11,13 @@ end
 getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
 getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
 
-name(var) = pyconvert(String, var.py.name)
+isnone(var::AbstractDataContainer) = pyisnone(var.py)
+Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
+
+function name(var)
+    isnone(var) && return nothing
+    pyconvert(String, var.py.name)
+end
 values(var) = pyconvert(Array, var.py.values)
 shape(var) = pyconvert(Tuple, var.py.shape)
 nbytes(var) = pyconvert(Int64, var.py.nbytes)
@@ -21,6 +27,7 @@ axes(var) = [axes(var, i) for i in 1:pylen(var.py.axes)]
 columns(var) = pyconvert(Vector{Symbol}, var.py.columns)
 meta(var) = pyconvert(Dict, var.py.meta)
 function units(var)
+    isnone(var) && return ""
     u = var.py.unit
     pyisnone(u) ? "" : pyconvert(String, u)
 end
@@ -59,8 +66,21 @@ end
 
 propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties)
 
-# Add Base.show methods for pretty printing
 function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
+    ismissing(var) && return
+    println(io, "$T(")
+    print(io, "  Name: ", name(var))
+    pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
+    print(io, "  Units: ", var.py.unit)
+    print(io, "  Shape: ", var.py.shape)
+    print(io, "  Values: ")
+    print(io, var.py.values)
+    println(io, ")")
+end
+
+# Add Base.show methods for pretty printing
+function Base.show(io::IO, m::MIME"text/plain", var::T) where {T<:AbstractDataContainer}
+    ismissing(var) && return
     println(io, "$T:")
     println(io, "  Name: ", name(var))
     pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
