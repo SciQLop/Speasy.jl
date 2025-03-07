@@ -3,6 +3,7 @@ using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
 using Unitful
+import Speasy: get_data
 import DimensionalData: DimArray, DimStack
 
 """
@@ -47,5 +48,11 @@ function DimArray(vs::AbstractArray{SpeasyVariable})
 end
 
 DimStack(vs::AbstractArray{SpeasyVariable}) = DimStack(DimArray.(vs)...)
+
+function Speasy.get_data(::Type{NamedTuple}, args...; kwargs...)
+    data = get_data(args...; kwargs...)
+    keys = Speasy.name.(data) .|> Symbol |> Tuple
+    return NamedTuple{keys}(data)
+end
 
 end
