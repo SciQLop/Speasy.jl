@@ -7,7 +7,16 @@ function replace_fillval_by_nan(var)
 end
 replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
 sanitize!(var; kwargs...) = (var.py.sanitized(; inplace=true, kwargs...); var)
-sanitize(var; kwargs...) = SpeasyVariable(var.py.sanitized(; kwargs...))
+sanitize(::Type{T}, var; kwargs...) where {T<:AbstractDataContainer} = T(var.py.sanitized(; kwargs...))
+
+function sanitize(var; kwargs...)
+    v = values(var)
+    replace!(v,
+        (valid_min(var) .=> NaN)...,
+        (valid_max(var) .=> NaN)...,
+        fill_value(var) => NaN
+    )
+end
 
 isspectrogram(var) = get(var.meta, "DISPLAY_TYPE", nothing) == "spectrogram"
 
