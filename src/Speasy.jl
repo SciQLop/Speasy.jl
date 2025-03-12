@@ -22,6 +22,7 @@ include("dataset.jl")
 
 const speasy = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
+const TimeRangeType = Union{NTuple{2}}
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
@@ -31,6 +32,11 @@ end
 
 function get_data(args...)
     res = speasy."get_data"(args...)
+    return apply_recursively(res, SpeasyVariable, is_pylist)
+end
+
+function get_data(p, trange::TimeRangeType; kwargs...)
+    res = speasy.get_data(p, trange...; kwargs...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
