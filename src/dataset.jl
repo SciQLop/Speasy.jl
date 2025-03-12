@@ -6,10 +6,10 @@ abstract type AbstractDataSet end
     provider::Symbol = :cda
 end
 
-parameters(ds::DataSet) = ds.parameters
+parameters(ds) = ds.parameters
 provider(ds::DataSet) = ds.provider
 
-function products(ds::DataSet; provider=provider(ds))
+function products(ds; provider=provider(ds))
     name = ds.name
     map(parameters(ds)) do p
         "$provider/$name/$p"
