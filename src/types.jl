@@ -19,7 +19,7 @@ function name(var)
     pyconvert(String, var.py.name)
 end
 values(var) = pyconvert(Array, var.py.values)
-fill_value(var) = var.py.fill_value
+fill_value(var) = pyconvert(Array, var.py.fill_value)
 valid_min(var) = pyconvert(Array, var.py.meta["VALIDMIN"])
 valid_max(var) = pyconvert(Array, var.py.meta["VALIDMAX"])
 shape(var) = pyconvert(Tuple, var.py.shape)
