@@ -14,7 +14,7 @@ function sanitize(var; kwargs...)
     replace!(v,
         (valid_min(var) .=> NaN)...,
         (valid_max(var) .=> NaN)...,
-        fill_value(var) => NaN
+        (fill_value(var) .=> NaN)...
     )
 end
 
