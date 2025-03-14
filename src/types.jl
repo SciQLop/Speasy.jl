@@ -69,23 +69,31 @@ end
 
 propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties)
 
+# https://github.com/rafaqz/DimensionalData.jl/blob/main/src/Dimensions/show.jl#L5
+function colors(i)
+    colors = [209, 32, 81, 204, 249, 166, 37]
+    c = rem(i - 1, length(colors)) + 1
+    colors[c]
+end
+
+print_name(io::IO, var) = printstyled(io, name(var); color=colors(7))
+
 function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
     ismissing(var) && return
-    println(io, "$T(")
-    print(io, "  Name: ", name(var))
-    pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
-    print(io, "  Units: ", var.py.unit)
-    print(io, "  Shape: ", var.py.shape)
-    print(io, "  Values: ")
-    print(io, var.py.values)
-    println(io, ")")
+    print(io, "$T(")
+    print_name(io, var)
+    pyhasattr(var.py, "time") && print(io, ", Time Range: ", time(var)[1], " to ", time(var)[end])
+    print(io, ", Units: ", var.py.unit)
+    print(io, ", Shape: ", var.py.shape)
+    print(io, ")")
 end
 
 # Add Base.show methods for pretty printing
 function Base.show(io::IO, m::MIME"text/plain", var::T) where {T<:AbstractDataContainer}
     ismissing(var) && return
-    println(io, "$T:")
-    println(io, "  Name: ", name(var))
+    print(io, "$T: ")
+    print_name(io, var)
+    println(io)
     pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
     println(io, "  Units: ", var.py.unit)
     println(io, "  Shape: ", var.py.shape)
