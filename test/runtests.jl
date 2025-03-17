@@ -42,7 +42,7 @@ end
         ],
         "2017-01-01T02:00:00",
         "2017-01-01T02:00:15"
-    ) isa Vector{SpeasyVariable}
+    ) isa Vector{<:SpeasyVariable}
 
 
     # More complex requests
@@ -54,7 +54,9 @@ end
         spz.inventories.tree.ssc.Trajectories.wind,
     ]
     intervals = [["2010-01-02", "2010-01-02T10"], ["2009-08-02", "2009-08-02T10"]]
-    @test get_data(products, intervals) isa Vector{Vector{SpeasyVariable}}
+    data = get_data(products, intervals)
+    @test data isa Vector{Vector}
+    @test data[1] isa Vector{<:SpeasyVariable}
 end
 
 @testitem "TimeSeriesExt.jl" begin
