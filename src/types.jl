@@ -1,11 +1,17 @@
-abstract type AbstractDataContainer end
-abstract type AbstractSupportDataContainer <: AbstractDataContainer end
+abstract type AbstractDataContainer{T,N} <: AbstractArray{T,N} end
+abstract type AbstractSupportDataContainer{T,N} <: AbstractDataContainer{T,N} end
 
 """
 A wrapper of `speasy.SpeasyVariable`.
 """
-struct SpeasyVariable <: AbstractDataContainer
+struct SpeasyVariable{T,N} <: AbstractDataContainer{T,N}
     py::Py
+end
+
+function SpeasyVariable(py::Py)
+    T = dtype(py)
+    N = length(py.shape)
+    return SpeasyVariable{T,N}(py)
 end
 
 getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
@@ -18,7 +24,7 @@ function name(var)
     isnone(var) && return nothing
     pyconvert(String, var.py.name)
 end
-values(var) = pyconvert(Array, var.py.values)
+values(var) = PyArray(var.py.values)
 fill_value(var) = pyconvert(Array, var.py.fill_value)
 valid_min(var) = pyconvert(Array, var.py.meta["VALIDMIN"])
 valid_max(var) = pyconvert(Array, var.py.meta["VALIDMAX"])
@@ -50,8 +56,14 @@ propertynames(var::SpeasyVariable) = union(fieldnames(SpeasyVariable), speasy_pr
 A wrapper of `speasy.VariableAxis`.
 https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L229
 """
-struct VariableAxis <: AbstractSupportDataContainer
+struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
     py::Py
+end
+
+function VariableAxis(py::Py)
+    T = dtype(py)
+    N = length(pyconvert(Tuple, py.shape))
+    return VariableAxis{T,N}(py)
 end
 
 ax_properties = (:name, :values, :units, :meta)

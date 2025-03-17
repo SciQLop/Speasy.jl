@@ -10,8 +10,21 @@ using TestItems, TestItemRunner
     using Unitful
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test spz_var isa SpeasyVariable
+    @test spz_var.values isa AbstractArray
     @test spz_var.time isa Vector{<:AbstractDateTime}
     @test unit(spz_var) == u"nT"
+end
+
+@testitem "Array Interface" begin
+    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    @info typeof(spz_var)
+    @test spz_var isa AbstractArray
+    @test Array(spz_var) isa Array
+    @test Array(spz_var) == spz_var.values
+    @test size(spz_var, 2) == 3
+    @test spz_var[1, 2] == Array(spz_var)[1, 2]
+    @test eltype(spz_var) == Float32
+    @test similar(spz_var) isa Array{Float32,2}
 end
 
 @testitem "Dynamic inventory" begin
