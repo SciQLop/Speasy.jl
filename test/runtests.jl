@@ -12,6 +12,7 @@ using TestItems, TestItemRunner
     @test spz_var isa SpeasyVariable
     @test spz_var.values isa AbstractArray
     @test spz_var.time isa Vector{<:AbstractDateTime}
+    @test spz_var.axes isa Vector{<:VariableAxis}
     @test unit(spz_var) == u"nT"
 end
 
@@ -57,6 +58,15 @@ end
     data = get_data(products, intervals)
     @test data isa Vector{Vector}
     @test data[1] isa Vector{<:SpeasyVariable}
+end
+
+@testitem "DimensionalData" begin
+    using DimensionalData
+    spz_var1 = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    @test DimArray(spz_var1) isa DimArray
+
+    spz_var2 = get_data("amda/solo_het_omni_hflux", "2020-11-28T00:00", "2020-11-28T00:10")
+    @test DimArray(spz_var2) isa DimArray
 end
 
 @testitem "TimeSeriesExt.jl" begin

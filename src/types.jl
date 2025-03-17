@@ -65,8 +65,8 @@ struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
 end
 
 function VariableAxis(py::Py)
-    T = dtype(py)
-    N = length(pyconvert(Tuple, py.shape))
+    T = dtype(py.values)
+    N = length(py.shape)
     return VariableAxis{T,N}(py)
 end
 
