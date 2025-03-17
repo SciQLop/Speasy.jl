@@ -1,8 +1,3 @@
-# Array Interface
-# https://docs.julialang.org/en/v1/manual/interfaces/#man-interface-array
-Base.size(var::AbstractDataContainer) = pyconvert(Tuple, var.py.shape)
-Base.getindex(var::AbstractDataContainer, I::Vararg{Int,N}) where {N} = pyconvert(Any, getindex(var.py.values, (I .- 1)...))
-
 Base.iterate(var::AbstractDataContainer, state=1) = state > length(var) ? nothing : (var[state], state + 1)
 
 Base.Array(var::AbstractDataContainer) = pyconvert(Array, var.py.values)

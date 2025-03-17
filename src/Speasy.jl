@@ -5,7 +5,7 @@ using PythonCall.Core: pyisnone
 using Dates
 using NanoDates
 using Unitful
-import Base: getproperty, propertynames, getindex
+import Base: getproperty, propertynames, getindex, size
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data

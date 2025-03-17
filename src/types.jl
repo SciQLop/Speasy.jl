@@ -14,8 +14,13 @@ function SpeasyVariable(py::Py)
     return SpeasyVariable{T,N}(py)
 end
 
-getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
-getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
+# Array Interface
+# https://docs.julialang.org/en/v1/manual/interfaces/#man-interface-array
+Base.size(var::AbstractDataContainer) = pyconvert(Tuple, var.py.shape)
+Base.getindex(var::AbstractDataContainer, I::Vararg{Int,N}) where {N} = pyconvert(Any, getindex(var.py.values, (I .- 1)...))
+
+Base.getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
+Base.getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
 
 isnone(var::AbstractDataContainer) = pyisnone(var.py)
 Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
@@ -28,7 +33,6 @@ values(var) = PyArray(var.py.values)
 fill_value(var) = pyconvert(Array, var.py.fill_value)
 valid_min(var) = pyconvert(Array, var.py.meta["VALIDMIN"])
 valid_max(var) = pyconvert(Array, var.py.meta["VALIDMAX"])
-shape(var) = pyconvert(Tuple, var.py.shape)
 nbytes(var) = pyconvert(Int64, var.py.nbytes)
 time(var) = pyconvert_time(var.py.time)
 axes(var, i) = VariableAxis(var.py.axes[i-1])

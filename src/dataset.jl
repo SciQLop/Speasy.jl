@@ -11,7 +11,7 @@ provider(ds::DataSet) = ds.provider
 
 function products(ds; provider=provider(ds))
     name = ds.name
-    map(parameters(ds)) do p
+    map(Base.values(parameters(ds))) do p
         "$provider/$name/$p"
     end
 end
