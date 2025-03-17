@@ -40,6 +40,12 @@ function get_data(p, trange::TimeRangeType; kwargs...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
+function get_data(::Type{<:NamedTuple}, args...; keys=nothing, kwargs...)
+    data = get_data(args...; kwargs...)
+    keys = Tuple(Symbol.(@something keys Speasy.name.(data)))
+    return NamedTuple{keys}(data)
+end
+
 init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)
 init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status=true)
 init_csa() = request_dispatch."init_csa"(ignore_disabled_status=true)
