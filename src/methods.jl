@@ -13,13 +13,22 @@ replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var
 sanitize!(var; kwargs...) = (var.py.sanitized(; inplace=true, kwargs...); var)
 sanitize(::Type{T}, var; kwargs...) where {T<:AbstractDataContainer} = T(var.py.sanitized(; kwargs...))
 
-function sanitize(var; kwargs...)
+function sanitize(var; replace_invalid=true, kwargs...)
     v = Array(var)
-    replace!(v,
-        (valid_min(var) .=> NaN)...,
-        (valid_max(var) .=> NaN)...,
-        (fill_value(var) .=> NaN)...
-    )
+    # Replace values outside valid range with NaN
+    if replace_invalid
+        vmins = valid_min(var)
+        vmaxs = valid_max(var)
+        # Apply filtering per column for each value in vmins/vmaxs
+        for i in eachindex(vmins)
+            vmin = vmins[i]
+            vmax = vmaxs[i]
+            v[(v[:, i].<vmin).|(v[:, i].>vmax), i] .= NaN
+        end
+    end
+    # Also replace fill values with NaN
+    replace!(v, (fill_value(var) .=> NaN)...)
+    return v
 end
 
 isspectrogram(var) = get(var.meta, "DISPLAY_TYPE", nothing) == "spectrogram"
