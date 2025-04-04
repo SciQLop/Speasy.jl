@@ -2,7 +2,7 @@ using Speasy
 using Test
 using TestItems, TestItemRunner
 
-@run_package_tests
+@run_package_tests filter = ti -> !(:skipci in ti.tags)
 
 @testitem "Speasy.jl" begin
     using Dates
@@ -75,7 +75,9 @@ end
     @test TimeArray(spz_var) isa TimeArray
 end
 
-@testitem "MakieExt.jl" begin
+@testitem "MakieExt.jl" tags = [:skipci] begin
+    import Pkg
+    Pkg.add("CairoMakie")
     using CairoMakie
     da = get_data("amda/imf", "2016-6-2", "2016-6-5")
     plot(da)
