@@ -1,11 +1,12 @@
 module Speasy
 
 using PythonCall
-using PythonCall.Core: pyisnone
+using PythonCall.Core: pyisnone, pyisnull, pynew, pycopy!
 using Dates
 using NanoDates
 using Unitful
-import Base: getproperty, propertynames, getindex, size
+import Base: getproperty, propertynames, getindex, size, isassigned
+import PythonCall: Py
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
@@ -15,23 +16,18 @@ export speasyplot, speasyplot!
 export DataSet
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
 
+include("py.jl")
 include("types.jl")
 include("utils.jl")
 include("methods.jl")
 include("dataset.jl")
 
-const speasy = PythonCall.pynew()
-const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
-
-function __init__()
-    ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
-    PythonCall.pycopy!(speasy, pyimport("speasy"))
-    PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
-end
+const speasy = PyLazyObj("speasy")
+const request_dispatch = PyLazyObj("speasy.core.requests_scheduling.request_dispatch")
 
 function get_data(args...)
-    res = speasy."get_data"(args...)
+    res = speasy.get_data(args...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
@@ -46,12 +42,12 @@ function get_data(::Type{<:NamedTuple}, args...; keys=nothing, kwargs...)
     return NamedTuple{keys}(data)
 end
 
-init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)
-init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status=true)
-init_csa() = request_dispatch."init_csa"(ignore_disabled_status=true)
-init_sscweb() = request_dispatch."init_sscweb"(ignore_disabled_status=true)
-init_archive() = request_dispatch."init_archive"(ignore_disabled_status=true)
-init_providers() = request_dispatch."init_providers"(ignore_disabled_status=true)
+init_amda() = request_dispatch.init_amda(ignore_disabled_status=true)
+init_cdaweb() = request_dispatch.init_cdaweb(ignore_disabled_status=true)
+init_csa() = request_dispatch.init_csa(ignore_disabled_status=true)
+init_sscweb() = request_dispatch.init_sscweb(ignore_disabled_status=true)
+init_archive() = request_dispatch.init_archive(ignore_disabled_status=true)
+init_providers() = request_dispatch.init_providers(ignore_disabled_status=true)
 
 function speasyplot end
 function speasyplot! end
