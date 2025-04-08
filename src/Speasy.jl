@@ -35,9 +35,12 @@ function get_data(args...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
+# Support NanoDates
+get_data(p, args::AbstractDateTime...; kwargs...) =
+    get_data(p, string.(args)...; kwargs...)
+
 function get_data(p, trange::TimeRangeType; kwargs...)
-    res = speasy.get_data(p, trange...; kwargs...)
-    return apply_recursively(res, SpeasyVariable, is_pylist)
+    get_data(p, trange...; kwargs...)
 end
 
 function get_data(::Type{<:NamedTuple}, args...; keys=nothing, kwargs...)
