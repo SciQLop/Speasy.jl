@@ -15,10 +15,10 @@ function sanitize(var; replace_invalid=true, kwargs...)
     if replace_invalid
         vmins = valid_min(var)
         vmaxs = valid_max(var)
-        # Apply filtering per column for each value in vmins/vmaxs
-        for i in eachindex(vmins)
-            vmin = vmins[i]
-            vmax = vmaxs[i]
+        # Apply filtering per column with matching vmins/vmaxs values (Handle case where vmins/vmaxs contain only one value)
+        for i in eachindex(size(v, 2))
+            vmin = @something get(vmins, i, nothing) only(vmins)
+            vmax = @something get(vmaxs, i, nothing) only(vmaxs)
             v[(v[:, i].<vmin).|(v[:, i].>vmax), i] .= NaN
         end
     end
