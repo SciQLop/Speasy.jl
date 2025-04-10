@@ -6,6 +6,7 @@ using Dates
 using NanoDates
 using Unitful
 import Base: getproperty, propertynames, getindex, size
+import PythonCall: PyArray
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
@@ -24,11 +25,13 @@ include("dataset.jl")
 const speasy = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
+const pyns = PythonCall.pynew()
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
     PythonCall.pycopy!(speasy, pyimport("speasy"))
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
+    PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
 end
 
 function get_data(args...)

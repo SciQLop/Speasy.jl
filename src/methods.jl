@@ -1,7 +1,3 @@
-Base.iterate(var::AbstractDataContainer, state=1) = state > length(var) ? nothing : (var[state], state + 1)
-
-Base.Array(var::AbstractDataContainer) = pyconvert(Array, var.py.values)
-
 function replace_fillval_by_nan(var)
     if eltype(var) <: Integer
         return var
@@ -14,7 +10,7 @@ sanitize!(var; kwargs...) = (var.py.sanitized(; inplace=true, kwargs...); var)
 sanitize(::Type{T}, var; kwargs...) where {T<:AbstractDataContainer} = T(var.py.sanitized(; kwargs...))
 
 function sanitize(var; replace_invalid=true, kwargs...)
-    v = Array(var)
+    v = PyArray(var)
     # Replace values outside valid range with NaN
     if replace_invalid
         vmins = valid_min(var)

@@ -1,21 +1,29 @@
-"""
-    pyconvert_time(time)
+using StatsBase: median
 
-Convert `time` from Python to Julia.
+# temporary solution, related to https://github.com/JuliaPy/PythonCall.jl/pull/509
+convert_time(::Type{<:DateTime}, t::Py) = DateTime(pyconvert(String, pystr(t.astype("datetime64[ms]")))) # pyconvert(DateTime, pyt0.astype("datetime64[ms]").item()) # slower
+convert_time(::Type{<:NanoDate}, t::Py) = NanoDate(pyconvert(String, pystr(t)))
 
-Much faster than `pyconvert(Array, time)`
 """
-function pyconvert_time(time)
-    if length(time) == 0
+    pyconvert_time(times)
+
+Convert `times` from Python to Julia.
+
+It automatically choose the time type based on the time resolution.
+
+Much faster than `pyconvert(Array, times)`
+"""
+function pyconvert_time(times; N=1000)
+    if length(times) == 0
         return DateTime[]
     end
-    pydt_min = pyimport("numpy").timedelta64(1, "ns")
     dt_min = Nanosecond(1)
-    pyt0 = time[0]
-    # t0 = pyconvert(DateTime, pyt0.astype("datetime64[s]").item()) # temporary solution, related to https://github.com/JuliaPy/PythonCall.jl/pull/509
-    t0 = NanoDate(pyconvert(String, pystr(pyt0))) # temporary solution, related to https://github.com/JuliaPy/PythonCall.jl/pull/509
-    dt_f = pyconvert(Array, (time - pyt0) / pydt_min)
-    return t0 .+ dt_f .* dt_min
+    pyt0 = times[0]
+    dt_f = PyArray((times - pyt0) / pyns, copy=false)
+    dt_med = median(length(dt_f) > N ? view(dt_f, 1:N) : dt_f)
+    tType = dt_med > 1e7 ? DateTime : NanoDate
+    t0 = convert_time(tType, pyt0)
+    return @. t0 + dt_f * dt_min
 end
 
 is_pylist(x) = pyisinstance(x, pybuiltins.list)

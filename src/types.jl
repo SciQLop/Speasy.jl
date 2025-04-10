@@ -17,6 +17,8 @@ end
 # Array Interface
 # https://docs.julialang.org/en/v1/manual/interfaces/#man-interface-array
 Base.size(var::AbstractDataContainer) = pyconvert(Tuple, var.py.shape)
+Base.iterate(var::AbstractDataContainer, state=1) = state > length(var) ? nothing : (var[state], state + 1)
+Base.Array(var::AbstractDataContainer) = pyconvert(Array, var.py.values)
 Base.getindex(var::AbstractDataContainer, I::Vararg{Int,N}) where {N} = pyconvert(Any, getindex(var.py.values, (I .- 1)...))
 
 Base.getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
@@ -24,6 +26,7 @@ Base.getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
 
 isnone(var::AbstractDataContainer) = pyisnone(var.py)
 Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
+PythonCall.PyArray(var::AbstractDataContainer) = PyArray(var.py.values)
 
 function name(var)
     isnone(var) && return nothing
