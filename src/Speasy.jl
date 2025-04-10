@@ -14,6 +14,7 @@ export isspectrogram
 export speasyplot, speasyplot!
 export DataSet
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
+export getdimarray
 
 include("types.jl")
 include("utils.jl")
@@ -59,4 +60,5 @@ init_providers() = request_dispatch."init_providers"(ignore_disabled_status=true
 function speasyplot end
 function speasyplot! end
 
+function getdimarray end
 end
