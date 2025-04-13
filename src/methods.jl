@@ -17,10 +17,10 @@ function sanitize(var; replace_invalid=true, kwargs...)
         vmaxs = valid_max(var)
         n, m = size(v)
         # Apply filtering per column with matching vmins/vmaxs values (Handle case where vmins/vmaxs contain only one value)
-        for i in eachindex(m)
+        for i in Base.OneTo(m)
             vmin = @something get(vmins, i, nothing) only(vmins)
             vmax = @something get(vmaxs, i, nothing) only(vmaxs)
-            for j in eachindex(n)
+            for j in Base.OneTo(n)
                 !(vmin < v[j, i] < vmax) && (v[j, i] = NaN)
             end
         end
