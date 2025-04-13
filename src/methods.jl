@@ -15,14 +15,13 @@ function sanitize(var; replace_invalid=true, kwargs...)
     if replace_invalid
         vmins = valid_min(var)
         vmaxs = valid_max(var)
-        n, m = size(v)
+        m = size(v, 2)
         # Apply filtering per column with matching vmins/vmaxs values (Handle case where vmins/vmaxs contain only one value)
-        for i in Base.OneTo(m)
+        for i in 1:m
             vmin = @something get(vmins, i, nothing) only(vmins)
             vmax = @something get(vmaxs, i, nothing) only(vmaxs)
-            for j in Base.OneTo(n)
-                !(vmin < v[j, i] < vmax) && (v[j, i] = NaN)
-            end
+            vc = @view v[:, i]
+            vc[(vc.<vmin).|(vc.>vmax)] .= NaN
         end
     end
     # Also replace fill values with NaN
