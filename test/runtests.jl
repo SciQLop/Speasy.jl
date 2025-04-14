@@ -69,7 +69,7 @@ end
     @test DimArray(spz_var2) isa DimArray
 end
 
-@testitem "TimeSeriesExt.jl" begin
+@testitem "TimeSeriesExt.jl" tags = [:skipci] begin
     using TimeSeries
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test TimeArray(spz_var) isa TimeArray
