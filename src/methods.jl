@@ -29,6 +29,7 @@ function sanitize(var; replace_invalid=true, kwargs...)
     return v
 end
 
+contain_provider(s::String) = length(split(s, "/")) == 3
 isspectrogram(var) = get(var.meta, "DISPLAY_TYPE", nothing) == "spectrogram"
 
 function Unitful.unit(var::AbstractDataContainer)

@@ -87,3 +87,12 @@ function dtype2type(dtype::String)
         error("Unsupported dtype: '$dtype'")
     end
 end
+
+_key_names(p) = keys(p)
+_key_names(p::AbstractDataSet) = keys(parameters(p))
+_key_names(p::AbstractArray) = nothing
+
+_compat(arg) = arg
+_compat(arg::AbstractDateTime) = string(arg) # Support NanoDates
+_compat(arg::AbstractVector) = _compat.(arg)
+_compat(arg::NTuple{2}) = collect(_compat.(arg))

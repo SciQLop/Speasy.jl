@@ -1,4 +1,4 @@
-abstract type AbstractDataContainer{T,N} <: AbstractArray{T,N} end
+abstract type AbstractDataContainer{T,N} <: AbstractDataVariable{T,N} end
 abstract type AbstractSupportDataContainer{T,N} <: AbstractDataContainer{T,N} end
 
 """
