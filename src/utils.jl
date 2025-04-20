@@ -54,7 +54,7 @@ end
 
 vartype(var) = vartype(var.meta["VAR_TYPE"])
 
-dtype(x) = dtype2type(string(x.dtype.name))
+dtype(x) = dtype2type(string(x."dtype"."name"))
 
 function dtype2type(dtype::String)
     if dtype == "float16"

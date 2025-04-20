@@ -25,6 +25,7 @@ include("dataset.jl")
 include("datamodel.jl")
 
 const speasy = PythonCall.pynew()
+const speasy_get_data = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
 const pyns = PythonCall.pynew()
@@ -32,12 +33,13 @@ const pyns = PythonCall.pynew()
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
     PythonCall.pycopy!(speasy, pyimport("speasy"))
+    PythonCall.pycopy!(speasy_get_data, pyimport("speasy").get_data)
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
     PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
 end
 
 function get_data(args...)
-    res = speasy."get_data"(_compat.(args)...)
+    res = speasy_get_data(_compat.(args)...)
     return apply_recursively(res, SpeasyVariable, is_pylist)
 end
 
