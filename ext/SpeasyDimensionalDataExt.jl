@@ -12,12 +12,13 @@ import DimensionalData: DimArray, DimStack
 Convert a `SpeasyVariable` to a `DimArray`.
 By default, it adds axes and adds units. Disabling `add_axes` could improve performance.
 """
-function DimArray(v::SpeasyVariable; f=sanitize, add_unit=true, add_axes=true, add_metadata=false, use_dimname=false)
+function DimArray(v::SpeasyVariable; f=sanitize, add_unit=true, add_axes=true, add_metadata=true, use_dimname=false)
     values = add_unit ? f(v) * Unitful.unit(v) : f(v)
     name = Symbol(v.name)
     ydim = use_dimname ? Dim{name}(v.columns) : Y(1:length(v.columns))
     dims = (Ti(v.time), ydim)
-    metadata = Dict{Any,Any}(v.meta)
+
+    metadata = add_metadata ? Dict{Any,Any}(v.meta) : Dict{Any,Any}()
     if isspectrogram(v)
         axes = v.axes
         y = axes[2]
@@ -50,8 +51,8 @@ end
 
 DimStack(vs::AbstractArray{SpeasyVariable}) = DimStack(DimArray.(vs)...)
 
-function Speasy.getdimarray(args...; add_unit=true, add_axes=true, kwargs...)
+function Speasy.getdimarray(args...; add_unit=true, add_axes=true, add_metadata=true, kwargs...)
     v = get_data(args...; kwargs...)
-    return DimArray(v; add_unit, add_axes)
+    return DimArray(v; add_unit, add_axes, add_metadata)
 end
 end
