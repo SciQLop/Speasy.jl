@@ -12,6 +12,7 @@ import SpaceDataModel: times, units
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
+export times, units
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize, sanitize!
 export isspectrogram
 export speasyplot, speasyplot!

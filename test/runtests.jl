@@ -10,8 +10,9 @@ using TestItems, TestItemRunner
     using Unitful
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
     @test spz_var isa SpeasyVariable
-    @test spz_var.time isa Vector{<:AbstractDateTime}
-    @test spz_var.axes isa Vector{<:VariableAxis}
+    @test spz_var.dims isa Tuple
+    @test times(spz_var) isa Vector{<:AbstractDateTime}
+    @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
 end
 
