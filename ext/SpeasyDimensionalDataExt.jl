@@ -19,10 +19,10 @@ function DimArray(v::SpeasyVariable; f=sanitize!, add_unit=true, add_axes=true, 
     values = add_unit ? parent(f(v)) * Unitful.unit(v) : parent(f(v))
     name = Symbol(v.name)
 
-    metadata = add_metadata ? Dict{Any,Any}(v.meta) : Dict{Any,Any}()
+    metadata = add_metadata ? Dict{Any,Any}(meta(v)) : Dict{Any,Any}()
     if isspectrogram(v)
         y = VariableAxis(v.axes[1])
-        ymeta = y.meta
+        ymeta = meta(y)
         add_metadata && (metadata[:ymeta] = ymeta)
         haskey(ymeta, "SCALETYP") && (metadata[:yscale] = ymeta["SCALETYP"])
         haskey(ymeta, "LABLAXIS") && (metadata[:ylabel] = ymeta["LABLAXIS"])
@@ -36,7 +36,7 @@ function DimArray(v::AbstractSupportDataContainer; unit=unit(v))
     name = Symbol(v.name)
     data = v.values
     dims = ndims(data) == 1 ? (Ti(),) : (Ti(), Dim{name}())
-    metadata = v.meta
+    metadata = meta(v)
     DimArray(data * unit, dims; name, metadata)
 end
 

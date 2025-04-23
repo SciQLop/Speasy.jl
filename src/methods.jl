@@ -44,7 +44,8 @@ function sanitize!(var; replace_invalid=true, kwargs...)
 end
 
 contain_provider(s::String) = length(split(s, "/")) == 3
-isspectrogram(var) = get(var.meta, "DISPLAY_TYPE", nothing) == "spectrogram"
+_get(x::Py, k, d=nothing) = pyconvert(Any, pygetitem(x, k, d))
+isspectrogram(var) = _get(var.py."meta", "DISPLAY_TYPE") == "spectrogram"
 
 # https://github.com/SciQLop/speasy/discussions/156
 # Design note: time series of scalar type also have `N=1`

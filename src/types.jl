@@ -34,10 +34,11 @@ function VariableAxis(py::Py)
 end
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
-SpaceDataModel.meta(var::AbstractDataContainer) = pyconvert(Dict, var.py."meta")
+SpaceDataModel.meta(var::AbstractDataContainer, T=Dict) = pyconvert(T, var.py."meta")
 SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
+SpaceDataModel.times(::VariableAxis) = nothing
 function SpaceDataModel.units(var::AbstractDataContainer)
-    u = var.unit
+    u = var.py."unit"
     pyisnone(u) ? "" : pyconvert(Any, u)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
