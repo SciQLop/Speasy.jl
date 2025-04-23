@@ -8,9 +8,10 @@ end
 
 columns(x::Py) = pyconvert(Any, x."columns")
 columns(x::AbstractDataContainer) = columns(x.py)
+coord(var) = get(var, "COORDINATE_SYSTEM")
 fill_value(var) = pyconvert(Any, var.py."fill_value")
-valid_min(var) = pyconvert(Any, var.py."meta"["VALIDMIN"])
-valid_max(var) = pyconvert(Any, var.py."meta"["VALIDMAX"])
+valid_min(var) = get(var, "VALIDMIN")
+valid_max(var) = get(var, "VALIDMAX")
 
 function replace_fillval_by_nan(var)
     if eltype(var) <: Integer
@@ -44,8 +45,7 @@ function sanitize!(var; replace_invalid=true, kwargs...)
 end
 
 contain_provider(s::String) = length(split(s, "/")) == 3
-_get(x::Py, k, d=nothing) = pyconvert(Any, pygetitem(x, k, d))
-isspectrogram(var) = _get(var.py."meta", "DISPLAY_TYPE") == "spectrogram"
+isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
 
 # https://github.com/SciQLop/speasy/discussions/156
 # Design note: time series of scalar type also have `N=1`

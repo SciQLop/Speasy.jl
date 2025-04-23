@@ -40,7 +40,11 @@ function SpaceDataModel.units(var::AbstractDataContainer)
     u = var.py."unit"
     pyisnone(u) ? "" : pyconvert(Any, u)
 end
-coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
+
+function Base.get(var::T, s, d=nothing) where {T<:AbstractDataContainer}
+    meta = var.py."meta"
+    pyconvert(Any, pygetitem(meta, s, d))
+end
 
 function Base.getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
     s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
