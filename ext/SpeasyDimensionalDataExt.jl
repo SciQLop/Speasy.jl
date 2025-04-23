@@ -3,8 +3,15 @@ using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
 using Unitful
-import Speasy: get_data, getdimarray
-import DimensionalData: DimArray, DimStack
+import Speasy: get_data, getdimarray, sanitize, time, isscalar
+import DimensionalData: DimArray, DimStack, dims
+
+
+function DimensionalData.dims(v::SpeasyVariable{T,2}; use_dimname=false) where T
+    ydim = use_dimname ? Dim{Symbol(v.name)}(v.columns) : Y(1:length(v.columns))
+    return (Ti(time(v)), ydim)
+end
+
 
 """
     DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=false, use_dimname=false)
@@ -15,8 +22,6 @@ By default, it adds axes and adds units. Disabling `add_axes` could improve perf
 function DimArray(v::SpeasyVariable; f=sanitize, add_unit=true, add_axes=true, add_metadata=true, use_dimname=false)
     values = add_unit ? f(v) * Unitful.unit(v) : f(v)
     name = Symbol(v.name)
-    ydim = use_dimname ? Dim{name}(v.columns) : Y(1:length(v.columns))
-    dims = (Ti(v.time), ydim)
 
     metadata = add_metadata ? Dict{Any,Any}(v.meta) : Dict{Any,Any}()
     if isspectrogram(v)
@@ -29,7 +34,7 @@ function DimArray(v::SpeasyVariable; f=sanitize, add_unit=true, add_axes=true, a
         haskey(ymeta, "UNITS") && (metadata[:yunit] = ymeta["UNITS"])
         add_axes && push!(metadata, "axes" => axes)
     end
-    DimArray(values, dims; name, metadata)
+    DimArray(values, dims(v; use_dimname); name, metadata)
 end
 
 function DimArray(v::AbstractSupportDataContainer; unit=unit(v))
