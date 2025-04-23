@@ -4,124 +4,47 @@ abstract type AbstractSupportDataContainer{T,N} <: AbstractDataContainer{T,N} en
 """
 A wrapper of `speasy.SpeasyVariable`.
 """
-struct SpeasyVariable{T,N} <: AbstractDataContainer{T,N}
+struct SpeasyVariable{T,N,D<:Tuple} <: AbstractDataContainer{T,N}
     py::Py
+    data::PyArray{T,N}
+    dims::D
+    name::String
 end
 
 function SpeasyVariable(py::Py)
-    T = dtype(py)
-    N = pylen(py."shape")
-    return SpeasyVariable{T,N}(py)
+    data = PyArray(py."values", copy=false)
+    # time is stored as (converted to) a `Array` instead of `PyArray` (as `PyArray` cannot convert this Python `ndarray`).
+    dims = (pyconvert_time(py."time"), pyconvert(Any, py."columns"))
+    return SpeasyVariable(py, data, dims, pyconvert(String, py."name"))
 end
 
-# Array Interface
-# https://docs.julialang.org/en/v1/manual/interfaces/#man-interface-array
-Base.size(var::AbstractDataContainer) = pyconvert(Tuple, var.py.shape)
-Base.iterate(var::AbstractDataContainer, state=1) = state > length(var) ? nothing : (var[state], state + 1)
-Base.Array(var::AbstractDataContainer) = pyconvert(Array, var.py.values)
-Base.getindex(var::AbstractDataContainer, I::Vararg{Int,N}) where {N} = pyconvert(Any, getindex(var.py.values, (I .- 1)...))
+"""
+A wrapper of `speasy.VariableAxis`.
+https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L234
+"""
+struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
+    py::Py
+    data::PyArray{T,N}
+    name::String
+end
 
-Base.getindex(var::AbstractDataContainer, s::String) = SpeasyVariable(var.py[s])
-Base.getindex(var::AbstractDataContainer, s::Symbol) = getindex(var, string(s))
+function VariableAxis(py::Py)
+    data = PyArray(py."values", copy=false)
+    return VariableAxis(py, data, pyconvert(String, py."name"))
+end
 
 isnone(var::AbstractDataContainer) = pyisnone(var.py)
 Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
-PythonCall.PyArray(var::AbstractDataContainer) = PyArray(var.py."values")
-
-function name(var)
-    isnone(var) && return nothing
-    pyconvert(String, var.py.name)
-end
-values(var) = PyArray(var.py."values")
-fill_value(var) = pyconvert(Any, var.py."fill_value")
-valid_min(var) = pyconvert(Any, var.py."meta"["VALIDMIN"])
-valid_max(var) = pyconvert(Any, var.py."meta"["VALIDMAX"])
-nbytes(var) = pyconvert(Int64, var.py."nbytes")
-time(var) = pyconvert_time(var.py."time")
-axes(var, i) = VariableAxis(var.py."axes"[i-1])
-axes(var) = [axes(var, i) for i in 1:pylen(var.py."axes")]
-columns(var) = pyconvert(Vector{Symbol}, var.py."columns")
-meta(var) = pyconvert(Dict, var.py."meta")
-function units(var)
+SpaceDataModel.meta(var::AbstractDataContainer) = pyconvert(Dict, var.py."meta")
+SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
+function SpaceDataModel.units(var::AbstractDataContainer)
     isnone(var) && return ""
     u = var.py."unit"
     pyisnone(u) ? "" : pyconvert(String, u)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
 
-const speasy_properties = (:name, :values, :time, :columns, :meta, :units, :axes)
-
-function getproperty(var::SpeasyVariable, s::Symbol)
-    s in (:py,) && return getfield(var, s)
-    s in speasy_properties && return eval(s)(var)
+function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
+    s in fieldnames(T) && return getfield(var, s)
     return getproperty(var.py, s)
-end
-
-propertynames(var::SpeasyVariable) = union(fieldnames(SpeasyVariable), speasy_properties)
-
-"""
-A wrapper of `speasy.VariableAxis`.
-https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L229
-"""
-struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
-    py::Py
-end
-
-function VariableAxis(py::Py)
-    T = dtype(py.values)
-    N = length(py.shape)
-    return VariableAxis{T,N}(py)
-end
-
-ax_properties = (:name, :values, :units, :meta)
-
-function values(ax::VariableAxis)
-    ax.name == "time" ? pyconvert_time(ax.py.values) : pyconvert(Array, ax.py.values)
-end
-
-
-function getproperty(var::VariableAxis, s::Symbol)
-    s in (:py,) && return getfield(var, s)
-    s in ax_properties && return eval(s)(var)
-    return getproperty(var.py, s)
-end
-
-propertynames(var::VariableAxis) = union(fieldnames(VariableAxis), ax_properties)
-
-# https://github.com/rafaqz/DimensionalData.jl/blob/main/src/Dimensions/show.jl#L5
-function colors(i)
-    colors = [209, 32, 81, 204, 249, 166, 37]
-    c = rem(i - 1, length(colors)) + 1
-    colors[c]
-end
-
-print_name(io::IO, var) = printstyled(io, name(var); color=colors(7))
-
-function Base.show(io::IO, var::T) where {T<:AbstractDataContainer}
-    ismissing(var) && return
-    print(io, "$T(")
-    print_name(io, var)
-    pyhasattr(var.py, "time") && print(io, ", Time Range: ", time(var)[1], " to ", time(var)[end])
-    print(io, ", Units: ", var.py.unit)
-    print(io, ", Shape: ", var.py.shape)
-    print(io, ")")
-end
-
-# Add Base.show methods for pretty printing
-function Base.show(io::IO, m::MIME"text/plain", var::T) where {T<:AbstractDataContainer}
-    ismissing(var) && return
-    print(io, "$T: ")
-    print_name(io, var)
-    println(io)
-    pyhasattr(var.py, "time") && println(io, "  Time Range: ", time(var)[1], " to ", time(var)[end])
-    println(io, "  Units: ", var.py.unit)
-    println(io, "  Shape: ", var.py.shape)
-    println(io, "  Size: ", Base.format_bytes(nbytes(var)))
-    pyhasattr(var.py, "columns") && println(io, "  Columns: ", var.py.columns)
-    if pyhasattr(var.py, "meta")
-        println(io, "  Metadata:")
-        for (key, value) in sort(collect(meta(var)), by=x -> x[1])
-            println(io, "    ", key, ": ", value)
-        end
-    end
 end
