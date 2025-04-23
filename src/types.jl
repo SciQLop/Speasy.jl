@@ -34,8 +34,8 @@ function VariableAxis(py::Py)
 end
 
 isnone(var::AbstractDataContainer) = pyisnone(var.py)
-meta(var) = pyconvert(Dict, var.py."meta")
 Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
+SpaceDataModel.meta(var::AbstractDataContainer) = pyconvert(Dict, var.py."meta")
 SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
 function SpaceDataModel.units(var::AbstractDataContainer)
     isnone(var) && return ""
@@ -44,12 +44,7 @@ function SpaceDataModel.units(var::AbstractDataContainer)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
 
-func_properties(::Type{<:AbstractDataVariable}) = (:meta, :units)
-
 function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
     s in fieldnames(T) && return getfield(var, s)
-    s in func_properties(T) && return eval(s)(var)
     return getproperty(var.py, s)
 end
-
-propertynames(::T) where {T<:AbstractDataContainer} = union(fieldnames(T), func_properties(T))

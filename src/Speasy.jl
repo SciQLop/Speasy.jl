@@ -8,11 +8,11 @@ using Unitful
 import Base: getproperty, propertynames, getindex, size, summarysize
 import PythonCall: PyArray
 using SpaceDataModel
-import SpaceDataModel: times, units
+import SpaceDataModel: times, units, meta
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
-export times, units
+export times, units, meta, name
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize, sanitize!
 export isspectrogram
 export speasyplot, speasyplot!
