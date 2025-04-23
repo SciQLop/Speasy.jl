@@ -6,7 +6,7 @@ using Dates
 using NanoDates
 using Unitful
 import Base: getproperty, propertynames, getindex, size, summarysize
-import PythonCall: PyArray
+import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta
 

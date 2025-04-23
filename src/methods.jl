@@ -6,6 +6,8 @@ function Base.summarysize(var::T) where T<:AbstractDataContainer
     return sz
 end
 
+columns(x::Py) = pyconvert(Any, x."columns")
+columns(x::AbstractDataContainer) = columns(x.py)
 fill_value(var) = pyconvert(Any, var.py."fill_value")
 valid_min(var) = pyconvert(Any, var.py."meta"["VALIDMIN"])
 valid_max(var) = pyconvert(Any, var.py."meta"["VALIDMAX"])
@@ -38,7 +40,7 @@ function sanitize!(var; replace_invalid=true, kwargs...)
     end
     # Also replace fill values with NaN
     replace!(v, (fill_value(var) .=> NaN)...)
-    return v
+    return var
 end
 
 contain_provider(s::String) = length(split(s, "/")) == 3

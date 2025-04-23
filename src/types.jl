@@ -14,7 +14,7 @@ end
 function SpeasyVariable(py::Py)
     data = PyArray(py."values", copy=false)
     # time is stored as (converted to) a `Array` instead of `PyArray` (as `PyArray` cannot convert this Python `ndarray`).
-    dims = (pyconvert_time(py."time"), pyconvert(Any, py."columns"))
+    dims = (pyconvert_time(py."time"), columns(py))
     return SpeasyVariable(py, data, dims, pyconvert(String, py."name"))
 end
 
@@ -33,18 +33,15 @@ function VariableAxis(py::Py)
     return VariableAxis(py, data, pyconvert(String, py."name"))
 end
 
-isnone(var::AbstractDataContainer) = pyisnone(var.py)
-Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
+PythonCall.Py(var::AbstractDataContainer) = var.py
 SpaceDataModel.meta(var::AbstractDataContainer) = pyconvert(Dict, var.py."meta")
 SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
 function SpaceDataModel.units(var::AbstractDataContainer)
-    isnone(var) && return ""
-    u = var.py."unit"
-    pyisnone(u) ? "" : pyconvert(String, u)
+    u = var.unit
+    pyisnone(u) ? "" : pyconvert(Any, u)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
 
 function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
-    s in fieldnames(T) && return getfield(var, s)
-    return getproperty(var.py, s)
+    s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
 end
