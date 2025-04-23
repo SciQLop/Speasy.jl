@@ -4,10 +4,18 @@ abstract type AbstractSupportDataContainer{T,N} <: AbstractDataContainer{T,N} en
 """
 A wrapper of `speasy.SpeasyVariable`.
 """
-struct SpeasyVariable{T,N} <: AbstractDataContainer{T,N}
+struct SpeasyVariable{T,N,D<:Tuple} <: AbstractDataContainer{T,N}
     py::Py
     data::PyArray{T,N}
+    dims::D
     name::String
+end
+
+function SpeasyVariable(py::Py)
+    data = PyArray(py."values", copy=false)
+    # time is stored as (converted to) a `Array` instead of `PyArray` (as `PyArray` cannot convert this Python `ndarray`).
+    dims = (pyconvert_time(py."time"), pyconvert(Any, py."columns"))
+    return SpeasyVariable(py, data, dims, pyconvert(String, py."name"))
 end
 
 """
@@ -20,28 +28,15 @@ struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
     name::String
 end
 
-function (::Type{D})(py::Py) where {D<:AbstractDataContainer}
+function VariableAxis(py::Py)
     data = PyArray(py."values", copy=false)
-    T = eltype(data)
-    N = ndims(data)
-    return D{T,N}(py, data, pyconvert(String, py."name"))
+    return VariableAxis(py, data, pyconvert(String, py."name"))
 end
 
 isnone(var::AbstractDataContainer) = pyisnone(var.py)
-Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
-PythonCall.PyArray(var::AbstractDataContainer; kwargs...) = PyArray(var.py."values"; kwargs...)
-
-values(var) = var.py."values"
-fill_value(var) = pyconvert(Any, var.py."fill_value")
-valid_min(var) = pyconvert(Any, var.py."meta"["VALIDMIN"])
-valid_max(var) = pyconvert(Any, var.py."meta"["VALIDMAX"])
-Base.summarysize(var::AbstractDataContainer) = pyconvert(Int64, var.py."nbytes")
-time(var) = pyconvert_time(var.py."time")
-SpaceDataModel.times(var::AbstractDataContainer) = pyconvert_time(var.py."time")
-axes(var, i) = VariableAxis(var.py."axes"[i-1])
-axes(var) = [axes(var, i) for i in 1:pylen(var.py."axes")]
-columns(var) = pyconvert(Vector{Symbol}, var.py."columns")
 meta(var) = pyconvert(Dict, var.py."meta")
+Base.ismissing(var::AbstractDataContainer) = pyisnone(var.py)
+SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
 function SpaceDataModel.units(var::AbstractDataContainer)
     isnone(var) && return ""
     u = var.py."unit"
@@ -49,7 +44,7 @@ function SpaceDataModel.units(var::AbstractDataContainer)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
 
-func_properties(::Type{<:SpeasyVariable}) = (:values, :time, :columns, :meta, :units, :axes)
+func_properties(::Type{<:AbstractDataVariable}) = (:meta, :units)
 
 function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
     s in fieldnames(T) && return getfield(var, s)
@@ -58,9 +53,3 @@ function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
 end
 
 propertynames(::T) where {T<:AbstractDataContainer} = union(fieldnames(T), func_properties(T))
-
-func_properties(::Type{<:VariableAxis}) = (:values, :units, :meta)
-
-function values(ax::VariableAxis)
-    ax.name == "time" ? pyconvert_time(ax.py.values) : pyconvert(Array, ax.py.values)
-end

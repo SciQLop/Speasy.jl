@@ -3,38 +3,33 @@ using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
 using Unitful
-import Speasy: get_data, getdimarray, sanitize, time, isscalar
+import Speasy: get_data, getdimarray, sanitize!
 import DimensionalData: DimArray, DimStack, dims
 
 
-function DimensionalData.dims(v::SpeasyVariable{T,2}; use_dimname=false) where T
-    ydim = use_dimname ? Dim{Symbol(v.name)}(v.columns) : Y(1:length(v.columns))
-    return (Ti(time(v)), ydim)
-end
-
+DimensionalData.dims(v::SpeasyVariable) = (Ti(v.dims[1]), Y(v.dims[2]))
 
 """
-    DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=false, use_dimname=false)
+    DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=false)
 
 Convert a `SpeasyVariable` to a `DimArray`.
 By default, it adds axes and adds units. Disabling `add_axes` could improve performance.
 """
-function DimArray(v::SpeasyVariable; f=sanitize, add_unit=true, add_axes=true, add_metadata=true, use_dimname=false)
-    values = add_unit ? f(v) * Unitful.unit(v) : f(v)
+function DimArray(v::SpeasyVariable; f=sanitize!, add_unit=true, add_axes=true, add_metadata=true)
+    values = add_unit ? parent(f(v)) * Unitful.unit(v) : parent(f(v))
     name = Symbol(v.name)
 
     metadata = add_metadata ? Dict{Any,Any}(v.meta) : Dict{Any,Any}()
     if isspectrogram(v)
-        axes = v.axes
-        y = axes[2]
+        y = VariableAxis(v.axes[1])
         ymeta = y.meta
         add_metadata && (metadata[:ymeta] = ymeta)
         haskey(ymeta, "SCALETYP") && (metadata[:yscale] = ymeta["SCALETYP"])
         haskey(ymeta, "LABLAXIS") && (metadata[:ylabel] = ymeta["LABLAXIS"])
         haskey(ymeta, "UNITS") && (metadata[:yunit] = ymeta["UNITS"])
-        add_axes && push!(metadata, "axes" => axes)
+        add_axes && push!(metadata, "y" => y)
     end
-    DimArray(values, dims(v; use_dimname); name, metadata)
+    DimArray(values, dims(v); name, metadata)
 end
 
 function DimArray(v::AbstractSupportDataContainer; unit=unit(v))
