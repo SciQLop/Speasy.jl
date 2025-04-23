@@ -35,14 +35,13 @@ end
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
 SpaceDataModel.meta(var::AbstractDataContainer, T=Dict) = pyconvert(T, var.py."meta")
-SpaceDataModel.times(var::AbstractDataContainer) = var.dims[1]
-SpaceDataModel.times(::VariableAxis) = nothing
+SpaceDataModel.times(var::SpeasyVariable) = var.dims[1]
 function SpaceDataModel.units(var::AbstractDataContainer)
     u = var.py."unit"
     pyisnone(u) ? "" : pyconvert(Any, u)
 end
 coord(var) = pyconvert(String, var.py."meta"["COORDINATE_SYSTEM"])
 
-function getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
+function Base.getproperty(var::T, s::Symbol) where {T<:AbstractDataContainer}
     s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
 end
