@@ -20,9 +20,9 @@ TimeseriesTools = "380cddd1-6ef2-46ca-b087-e7151fb095ff"
 
 [extensions]
 SpeasyDimensionalDataExt = "DimensionalData"
-SpeasyMakieExt = "Makie"
-SpeasyTimeSeriesExt = "TimeSeries"
-SpeasyTimeseriesToolsExt = "TimeseriesTools"
+# SpeasyMakieExt = "Makie"
+# SpeasyTimeSeriesExt = "TimeSeries"
+# SpeasyTimeseriesToolsExt = "TimeseriesTools"
 
 [compat]
 CondaPkg = "0.2.24"

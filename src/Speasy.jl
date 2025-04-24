@@ -8,7 +8,7 @@ using Unitful
 import Base: get, getproperty, propertynames, getindex, size, summarysize
 import PythonCall: PyArray, Py
 using SpaceDataModel
-import SpaceDataModel: times, units, meta
+import SpaceDataModel: times, units, meta, name
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
