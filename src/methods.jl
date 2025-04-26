@@ -1,15 +1,14 @@
 function Base.summarysize(var::T) where T<:AbstractDataContainer
-    sz = pyconvert(Int64, var.py."nbytes")
+    sz = @py2jl var.nbytes
     for field in fieldnames(T)
         sz += summarysize(getfield(var, field))
     end
     return sz
 end
 
-columns(x::Py) = pyconvert(Any, x."columns")
-columns(x::AbstractDataContainer) = columns(x.py)
+columns(x) = @py2jl x.columns
+fill_value(var) = @py2jl var.fill_value
 coord(var) = get(var, "COORDINATE_SYSTEM")
-fill_value(var) = pyconvert(Any, var.py."fill_value")
 valid_min(var) = var["VALIDMIN"]
 valid_max(var) = var["VALIDMAX"]
 
@@ -22,7 +21,6 @@ function replace_fillval_by_nan(var)
 end
 replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
 pysanitize!(var; kwargs...) = (var.py.sanitized(; inplace=true, kwargs...); var)
-sanitize(::Type{T}, var; kwargs...) where {T<:AbstractDataContainer} = T(var.py.sanitized(; kwargs...))
 
 function sanitize!(var; replace_invalid=true, kwargs...)
     v = parent(var)
@@ -51,10 +49,6 @@ isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
 # Design note: time series of scalar type also have `N=1`
 isscalar(var) = false
 isscalar(var::AbstractMatrix) = size(var, 2) == 1
-scalarify(x) = x
-scalarify(x::AbstractMatrix) = isscalar(x) ? vec(x) : x
-
-standardize(v; kwargs...) = scalarify(sanitize(v; kwargs...))
 
 function Unitful.unit(var::AbstractDataContainer)
     u_str = units(var)

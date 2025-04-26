@@ -96,3 +96,14 @@ _compat(arg) = arg
 _compat(arg::AbstractDateTime) = string(arg) # Support NanoDates
 _compat(arg::AbstractVector) = _compat.(arg)
 _compat(arg::NTuple{2}) = collect(_compat.(arg))
+
+"""Get the property of `var.py` and convert it to Julia."""
+py2jl_getproperty(py::Py, s) = pyconvert(Any, getproperty(py, s))
+py2jl_getproperty(var, s) = py2jl_getproperty(Py(var), s)
+
+# Macro to shorthand @py2jl x.field → py2jl_getproperty(x, :field)
+macro py2jl(expr)
+    obj = expr.args[1]
+    field = expr.args[2]
+    return :(py2jl_getproperty($(esc(obj)), $(field)))
+end
