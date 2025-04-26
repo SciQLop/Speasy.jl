@@ -10,8 +10,8 @@ columns(x::Py) = pyconvert(Any, x."columns")
 columns(x::AbstractDataContainer) = columns(x.py)
 coord(var) = get(var, "COORDINATE_SYSTEM")
 fill_value(var) = pyconvert(Any, var.py."fill_value")
-valid_min(var) = get(var, "VALIDMIN")
-valid_max(var) = get(var, "VALIDMAX")
+valid_min(var) = var["VALIDMIN"]
+valid_max(var) = var["VALIDMAX"]
 
 function replace_fillval_by_nan(var)
     if eltype(var) <: Integer
