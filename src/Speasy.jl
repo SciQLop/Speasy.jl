@@ -40,10 +40,9 @@ function __init__()
     PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
 end
 
-function get_data(args...)
-    res = speasy_get_data(_compat.(args)...)
-    return apply_recursively(res, SpeasyVariable, is_pylist)
-end
+py_get_data(args...) = speasy_get_data(_compat.(args)...)
+
+get_data(args...) = apply_recursively(py_get_data(args...), SpeasyVariable, is_pylist)
 
 function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
     data = get_data(p, args...; kwargs...)
