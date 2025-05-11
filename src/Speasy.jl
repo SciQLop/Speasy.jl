@@ -1,3 +1,10 @@
+"""
+A Julia wrapper around `speasy`, a Python package to deal with main Space Physics WebServices.
+
+Space Physics made EASY!
+
+Links: [GitHub](https://github.com/SciQLop/speasy), [Documentation](https://speasy.readthedocs.io/)
+"""
 module Speasy
 
 using PythonCall
@@ -31,18 +38,29 @@ const speasy_get_data = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
 const pyns = PythonCall.pynew()
+const np = PythonCall.pynew()
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
     PythonCall.pycopy!(speasy, pyimport("speasy"))
     PythonCall.pycopy!(speasy_get_data, pyimport("speasy").get_data)
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
+    PythonCall.pycopy!(np, pyimport("numpy"))
     PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
 end
 
-py_get_data(args...) = speasy_get_data(_compat.(args)...)
+"""
+    get_data(args...; drop_nan=false)
 
-get_data(args...) = apply_recursively(py_get_data(args...), SpeasyVariable, is_pylist)
+Get data using `speasy` Python package. We support the same arguments as `speasy.get_data`.
+
+Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
+"""
+function get_data(args...; drop_nan=false)
+    v = speasy_get_data(_compat.(args)...)
+    drop_nan && apply_recursively(v, py_drop_nan!, is_pylist)
+    apply_recursively(v, SpeasyVariable, is_pylist)
+end
 
 function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
     data = get_data(p, args...; kwargs...)
