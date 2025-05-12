@@ -39,6 +39,7 @@ const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
 const pyns = PythonCall.pynew()
 const np = PythonCall.pynew()
+const VERSION = Ref{String}()
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
@@ -47,6 +48,7 @@ function __init__()
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
     PythonCall.pycopy!(np, pyimport("numpy"))
     PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
+    VERSION[] = pyconvert(String, speasy."__version__")
 end
 
 """

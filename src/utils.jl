@@ -25,7 +25,10 @@ function pyconvert_time(times; N=1000)
     dt_med = median(length(dt_f) > N ? view(dt_f, 1:N) : dt_f)
     tType = dt_med > 1e7 ? DateTime : NanoDate
     t0 = convert_time(tType, pyt0)
-    return @. t0 + dt_f * dt_min
+
+    map(dt_f) do dt
+        !isnan(dt) ? t0 + dt * dt_min : missing
+    end
 end
 
 is_pylist(x) = pyisinstance(x, pybuiltins.list)
