@@ -58,9 +58,10 @@ Get data using `speasy` Python package. We support the same arguments as `speasy
 
 Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
 """
-function get_data(args...; drop_nan=false)
+function get_data(args...; drop_nan=false, sanitize=false)
     v = speasy_get_data(_compat.(args)...)
-    drop_nan && apply_recursively(v, py_drop_nan!, is_pylist)
+    drop_nan && (v = apply_recursively(v, py_drop_nan, is_pylist))
+    sanitize && (v = apply_recursively(v, pysanitize, is_pylist))
     apply_recursively(v, SpeasyVariable, is_pylist)
 end
 

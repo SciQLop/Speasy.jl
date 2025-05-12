@@ -1,4 +1,4 @@
-function Base.summarysize(var::T) where T<:AbstractDataContainer
+function Base.summarysize(var::T) where {T<:AbstractDataContainer}
     sz = @py2jl var.nbytes
     for field in fieldnames(T)
         sz += summarysize(getfield(var, field))
@@ -20,10 +20,10 @@ function replace_fillval_by_nan(var)
     end
 end
 replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
-# sanitize! is more performant than pysanitize!, so we make `drop_out_of_range_values` false by default
+# sanitize! is more performant than pysanitize, so we make `drop_out_of_range_values` false by default
 # https://github.com/SciQLop/speasy/issues/214 `drop_fill_values` is not supported
-pysanitize!(var::Py; inplace=true, drop_out_of_range_values=false, kw...) =
-    var.sanitized(; inplace, drop_out_of_range_values, kw...)
+pysanitize(var::Py; drop_out_of_range_values=false, kw...) =
+    var.sanitized(; inplace=true, drop_out_of_range_values, kw...)
 
 function sanitize!(var; replace_invalid=true, kwargs...)
     v = parent(var)

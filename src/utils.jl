@@ -4,7 +4,7 @@ using StatsBase: median
 convert_time(::Type{<:DateTime}, t::Py) = DateTime(pyconvert(String, pystr(t.astype("datetime64[ms]")))) # pyconvert(DateTime, pyt0.astype("datetime64[ms]").item()) # slower
 convert_time(::Type{<:NanoDate}, t::Py) = NanoDate(pyconvert(String, pystr(t)))
 
-py_drop_nan!(x) = x[np.isfinite(x).reshape(-1)]
+py_drop_nan(x) = x[np.isfinite(x).reshape(-1)]
 
 """
     pyconvert_time(times)

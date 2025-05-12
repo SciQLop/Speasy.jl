@@ -8,7 +8,8 @@ using TestItems, TestItemRunner
     using Dates
     using Dates: AbstractDateTime
     using Unitful
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    # spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    spz_var = get_data("cda/OMNI_HRO_1MIN/Pressure", "2016-6-2", "2016-6-3")
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
     @test times(spz_var) isa Vector{<:AbstractDateTime}
