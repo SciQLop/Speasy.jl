@@ -1,4 +1,7 @@
 function SpeasyProduct(id, metadata=Dict(); provider=:cda, kwargs...)
-    id = contain_provider(id) ? id : "$provider/$id"
+    if !contain_provider(id)
+        @info "Provider not found in $id, using $provider"
+        id = "$provider/$id"
+    end
     Product(id, getdimarray, id, metadata; kwargs...)
 end

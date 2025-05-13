@@ -45,7 +45,7 @@ function sanitize!(var; replace_invalid=true, kwargs...)
     return var
 end
 
-contain_provider(s::String) = length(split(s, "/")) == 3
+contain_provider(s::String) = split(s, "/")[1] in ("amda", "cda", "csa", "ssc", "archive")
 isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
 
 # https://github.com/SciQLop/speasy/discussions/156
