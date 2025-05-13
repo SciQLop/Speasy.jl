@@ -4,6 +4,11 @@ using TestItems, TestItemRunner
 
 @run_package_tests filter = ti -> !(:skipci in ti.tags)
 
+@testitem "Aqua" begin
+    using Aqua
+    Aqua.test_all(Speasy)
+end
+
 @testitem "Speasy.jl" begin
     using Dates
     using Dates: AbstractDateTime
