@@ -60,6 +60,7 @@ Set `drop_nan=true` to drop the nan values. Note that we need to do that in Pyth
 """
 function get_data(args...; drop_nan=false, sanitize=false)
     v = speasy_get_data(_compat.(args)...)
+    pyisnone(v) && return nothing
     drop_nan && (v = apply_recursively(v, py_drop_nan, is_pylist))
     sanitize && (v = apply_recursively(v, pysanitize, is_pylist))
     apply_recursively(v, SpeasyVariable, is_pylist)

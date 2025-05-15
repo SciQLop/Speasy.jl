@@ -53,6 +53,6 @@ DimStack(vs::AbstractArray{SpeasyVariable}) = DimStack(DimArray.(vs)...)
 
 function Speasy.getdimarray(args...; add_unit=true, add_axes=true, add_metadata=true, kwargs...)
     v = get_data(args...; kwargs...)
-    return DimArray(v; add_unit, add_axes, add_metadata)
+    isnothing(v) ? nothing : DimArray(v; add_unit, add_axes, add_metadata)
 end
 end
