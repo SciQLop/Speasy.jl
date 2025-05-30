@@ -32,6 +32,7 @@ include("utils.jl")
 include("methods.jl")
 include("dataset.jl")
 include("datamodel.jl")
+include("providers.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
@@ -59,11 +60,15 @@ Get data using `speasy` Python package. We support the same arguments as `speasy
 Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
 """
 function get_data(args...; drop_nan=false, sanitize=false)
-    v = speasy_get_data(_compat.(args)...)
-    pyisnone(v) && return nothing
-    drop_nan && (v = apply_recursively(v, py_drop_nan, is_pylist))
-    sanitize && (v = apply_recursively(v, pysanitize, is_pylist))
-    apply_recursively(v, SpeasyVariable, is_pylist)
+    provider = get_provider(args[1])
+    if provider in ("ssc", "sscweb")
+        splits = split(args[1], "/")
+        prod = splits[2]
+        coord = get(splits, 3, "gse")
+        return ssc_get_data(prod, args[2:end]..., coord)
+    else
+        return general_get_data(args...; drop_nan, sanitize)
+    end
 end
 
 function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
@@ -75,20 +80,6 @@ end
 function get_data(ds::AbstractDataSet, args...; provider=provider(ds), kwargs...)
     products = products(ds; provider)
     get_data(products, args...; kwargs...)
-end
-
-"""
-    ssc_get_data(args...)
-
-Get data from SSCWeb. 
-
-Compare to `get_data`, this function support `coord` as the last argument.
-The following coordinates systems are available: geo, gm, gse, gsm, sm, geitod, geij2000. 
-By default `gse` is used.
-"""
-function ssc_get_data(args...)
-    v = @pyconst(speasy.ssc.get_data)(_compat.(args)...)
-    pyisnone(v) ? nothing : SpeasyVariable(v)
 end
 
 init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)

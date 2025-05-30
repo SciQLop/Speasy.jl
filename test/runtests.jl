@@ -64,6 +64,12 @@ end
     @test data[1] isa Vector{<:SpeasyVariable}
 end
 
+@testitem "ssc.get_data and get_data(\"ssc/...\")" begin
+    @test Speasy.ssc_get_data("mms1", "2018-01-01", "2018-01-02", "gsm") isa SpeasyVariable
+    @test get_data("ssc/mms1", "2018-01-01", "2018-01-02") isa SpeasyVariable
+    @test get_data("ssc/mms1/gsm", "2018-01-01", "2018-01-02") isa SpeasyVariable
+end
+
 @testitem "DimensionalData" begin
     using DimensionalData
     spz_var1 = get_data("amda/imf", "2016-6-2", "2016-6-5")
