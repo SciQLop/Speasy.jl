@@ -77,6 +77,20 @@ function get_data(ds::AbstractDataSet, args...; provider=provider(ds), kwargs...
     get_data(products, args...; kwargs...)
 end
 
+"""
+    ssc_get_data(args...)
+
+Get data from SSCWeb. 
+
+Compare to `get_data`, this function support `coord` as the last argument.
+The following coordinates systems are available: geo, gm, gse, gsm, sm, geitod, geij2000. 
+By default `gse` is used.
+"""
+function ssc_get_data(args...)
+    v = @pyconst(speasy.ssc.get_data)(_compat.(args)...)
+    pyisnone(v) ? nothing : SpeasyVariable(v)
+end
+
 init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)
 init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status=true)
 init_csa() = request_dispatch."init_csa"(ignore_disabled_status=true)
