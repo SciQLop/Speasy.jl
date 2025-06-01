@@ -9,8 +9,8 @@ end
 columns(x) = @py2jl x.columns
 fill_value(var) = @py2jl var.fill_value
 coord(var) = get(var, "COORDINATE_SYSTEM")
-valid_min(var) = var["VALIDMIN"]
-valid_max(var) = var["VALIDMAX"]
+valid_min(var) = get(var, "VALIDMIN", nothing)
+valid_max(var) = get(var, "VALIDMAX", nothing)
 
 function replace_fillval_by_nan(var)
     if eltype(var) <: Integer
@@ -19,18 +19,27 @@ function replace_fillval_by_nan(var)
         return SpeasyVariable(var.py.replace_fillval_by_nan())
     end
 end
-replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
+
+# https://github.com/SciQLop/speasy/blob/7baf7366513771bcde85d90af560475c53a93ea0/speasy/products/variable.py#L703
+# replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
+function replace_fillval_by_nan!(var)
+    nan = eltype(var)(NaN)
+    if (val = fill_value(var)) |> !isnothing
+        replace!(parent(var), (val .=> nan)...)
+    end
+    return var
+end
+
 # sanitize! is more performant than pysanitize, so we make `drop_out_of_range_values` false by default
 # https://github.com/SciQLop/speasy/issues/214 `drop_fill_values` is not supported
 pysanitize(var::Py; drop_out_of_range_values=false, kw...) =
     var.sanitized(; drop_out_of_range_values, kw...)
 
+
 function sanitize!(var; replace_invalid=true, kwargs...)
     v = parent(var)
     # Replace values outside valid range with NaN
-    if replace_invalid
-        vmins = valid_min(var)
-        vmaxs = valid_max(var)
+    if replace_invalid && (vmins = valid_min(var)) !== nothing && (vmaxs = valid_max(var)) !== nothing
         m = size(v, 2)
         # Apply filtering per column with matching vmins/vmaxs values (Handle case where vmins/vmaxs contain only one value)
         for i in 1:m
@@ -40,9 +49,7 @@ function sanitize!(var; replace_invalid=true, kwargs...)
             vc[(vc.<vmin).|(vc.>vmax)] .= NaN
         end
     end
-    # Also replace fill values with NaN
-    replace!(v, (fill_value(var) .=> NaN)...)
-    return var
+    return replace_fillval_by_nan!(var)
 end
 
 contain_provider(s::String) = split(s, "/")[1] in ("amda", "cda", "csa", "ssc", "archive")
