@@ -20,12 +20,37 @@ function replace_fillval_by_nan(var)
     end
 end
 
+# this makes `fill_value`, `vmins` and `vmaxs` of same type, which makes the code faster
+@inline vec_T(T, vs::AbstractVector) = Base.convert(Vector{T}, vs)
+@inline vec_T(T, vs) = T[vs]
+
 # https://github.com/SciQLop/speasy/blob/7baf7366513771bcde85d90af560475c53a93ea0/speasy/products/variable.py#L703
-# replace_fillval_by_nan!(var) = (var.py.replace_fillval_by_nan(inplace=true); var)
 function replace_fillval_by_nan!(var)
-    nan = eltype(var)(NaN)
-    if (val = fill_value(var)) |> !isnothing
-        replace!(parent(var), (val .=> nan)...)
+    T = eltype(var)
+    val = fill_value(var)
+    if !isnothing(val) && !all(isnan, val)
+        replace!(parent(var), (vec_T(T, val) .=> T(NaN))...)
+    end
+    return var
+end
+
+function replace_invalid!(A, vmins, vmaxs)
+    T = eltype(A)
+    for i in axes(A, 2)
+        vmin = get(vmins, i, vmins[1])
+        vmax = get(vmaxs, i, vmaxs[1])
+        vc = @view A[:, i]
+        @. vc = ifelse((vc < vmin) | (vc > vmax), T(NaN), vc)
+    end
+    return A
+end
+
+function replace_invalid!(var)
+    vmins = valid_min(var)
+    vmaxs = valid_max(var)
+    if !isnothing(vmins) && !isnothing(vmaxs)
+        T = eltype(var)
+        replace_invalid!(parent(var), vec_T(T, vmins), vec_T(T, vmaxs))
     end
     return var
 end
@@ -36,20 +61,11 @@ pysanitize(var::Py; drop_out_of_range_values=false, kw...) =
     var.sanitized(; drop_out_of_range_values, kw...)
 
 
-function sanitize!(var; replace_invalid=true, kwargs...)
-    v = parent(var)
+function sanitize!(var; replace_invalid=true, replace_fillval=true, kwargs...)
     # Replace values outside valid range with NaN
-    if replace_invalid && (vmins = valid_min(var)) !== nothing && (vmaxs = valid_max(var)) !== nothing
-        m = size(v, 2)
-        # Apply filtering per column with matching vmins/vmaxs values (Handle case where vmins/vmaxs contain only one value)
-        for i in 1:m
-            vmin = @something get(vmins, i, nothing) only(vmins)
-            vmax = @something get(vmaxs, i, nothing) only(vmaxs)
-            vc = @view v[:, i]
-            vc[(vc.<vmin).|(vc.>vmax)] .= NaN
-        end
-    end
-    return replace_fillval_by_nan!(var)
+    replace_invalid && replace_invalid!(var)
+    replace_fillval && replace_fillval_by_nan!(var)
+    return var
 end
 
 contain_provider(s::String) = split(s, "/")[1] in ("amda", "cda", "csa", "ssc", "archive")

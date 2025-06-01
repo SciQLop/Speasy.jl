@@ -1,15 +1,17 @@
 abstract type AbstractDataContainer{T,N} <: AbstractDataVariable{T,N} end
 abstract type AbstractSupportDataContainer{T,N} <: AbstractDataContainer{T,N} end
 
-"""
-A wrapper of `speasy.SpeasyVariable`.
-"""
-struct SpeasyVariable{T,N,D<:Tuple} <: AbstractDataContainer{T,N}
+"""A wrapper of `speasy.SpeasyVariable`."""
+@concrete struct SpeasyVariable{T,N,A<:AbstractArray{T,N}} <: AbstractDataContainer{T,N}
     py::Py
-    data::PyArray{T,N}
-    dims::D
-    name::String
-    metadata::PyDict
+    data::A
+    dims
+    name
+    metadata
+end
+
+function Base.show(io::IO, T::Type{<:AbstractDataContainer})
+    print(io, "$(nameof(T)){$(eltype(T)), $(ndims(T))}")
 end
 
 function SpeasyVariable(py::Py)
@@ -24,11 +26,11 @@ end
 A wrapper of `speasy.VariableAxis`.
 https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L234
 """
-struct VariableAxis{T,N} <: AbstractSupportDataContainer{T,N}
+@concrete struct VariableAxis{T,N,A<:AbstractArray{T,N}} <: AbstractSupportDataContainer{T,N}
     py::Py
-    data::PyArray{T,N}
-    name::String
-    metadata::PyDict
+    data::A
+    name
+    metadata
 end
 
 function VariableAxis(py::Py)

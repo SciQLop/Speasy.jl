@@ -12,7 +12,8 @@ using PythonCall.Core: pyisnone
 using Dates
 using NanoDates
 using Unitful
-import Base: get, getproperty, propertynames, getindex, size, summarysize
+using ConcreteStructs
+import Base: getproperty, summarysize
 import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta, name
