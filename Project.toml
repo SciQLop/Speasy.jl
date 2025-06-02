@@ -4,6 +4,7 @@ authors = ["Beforerr <zzj956959688@gmail.com> and contributors"]
 version = "0.3.1"
 
 [deps]
+ConcreteStructs = "2569d6c7-a4a2-43d3-a901-331e8e4be471"
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 NanoDates = "46f1a544-deae-4307-8689-c12aa3c955c6"
@@ -20,11 +21,9 @@ TimeseriesTools = "380cddd1-6ef2-46ca-b087-e7151fb095ff"
 
 [extensions]
 SpeasyDimensionalDataExt = "DimensionalData"
-# SpeasyMakieExt = "Makie"
-# SpeasyTimeSeriesExt = "TimeSeries"
-# SpeasyTimeseriesToolsExt = "TimeseriesTools"
 
 [compat]
+ConcreteStructs = "0.2.3"
 CondaPkg = "0.2.24"
 Dates = "1"
 DimensionalData = "0.29"
