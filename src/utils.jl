@@ -15,18 +15,18 @@ It automatically choose the time type based on the time resolution.
 
 Much faster than `pyconvert(Array, times)`
 """
-function pyconvert_time(times; N=1000)
+function pyconvert_time(times; N = 1000)
     if length(times) == 0
         return DateTime[]
     end
     dt_min = Nanosecond(1)
     pyt0 = times[0]
-    dt_f = PyArray((times - pyt0) / pyns, copy=false)
+    dt_f = PyArray((times - pyt0) / pyns, copy = false)
     dt_med = median(length(dt_f) > N ? view(dt_f, 1:N) : dt_f)
-    tType = dt_med > 1e7 ? DateTime : NanoDate
+    tType = dt_med > 1.0e7 ? DateTime : NanoDate
     t0 = convert_time(tType, pyt0)
 
-    map(dt_f) do dt
+    return map(dt_f) do dt
         !isnan(dt) ? t0 + dt * dt_min : missing
     end
 end
@@ -59,46 +59,11 @@ end
 
 vartype(var) = vartype(var.meta["VAR_TYPE"])
 
-dtype(x) = dtype2type(string(x."dtype"."name"))
-
-function dtype2type(dtype::String)
-    if dtype == "float16"
-        Float16
-    elseif dtype == "float32"
-        Float32
-    elseif dtype == "float64"
-        Float64
-    elseif dtype == "int8"
-        Int8
-    elseif dtype == "int16"
-        Int16
-    elseif dtype == "int32"
-        Int32
-    elseif dtype == "int64"
-        Int64
-    elseif dtype == "uint8"
-        UInt8
-    elseif dtype == "uint16"
-        UInt16
-    elseif dtype == "uint32"
-        UInt32
-    elseif dtype == "uint64"
-        UInt64
-    elseif dtype == "bool"
-        Bool
-    elseif dtype == "datetime64[ns]"
-        DateTime
-    else
-        error("Unsupported dtype: '$dtype'")
-    end
-end
-
 _key_names(p) = keys(p)
 _key_names(p::AbstractDataSet) = keys(parameters(p))
 _key_names(p::AbstractArray) = nothing
 
-_compat(arg) = arg
-_compat(arg::AbstractDateTime) = string(arg) # Support NanoDates
+_compat(arg) = string(arg)
 _compat(arg::AbstractVector) = _compat.(arg)
 _compat(arg::NTuple{2}) = collect(_compat.(arg))
 
