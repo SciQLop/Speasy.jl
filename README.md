@@ -1,6 +1,8 @@
 # Speasy
 
 [![Build Status](https://github.com/Beforerr/Speasy.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Beforerr/Speasy.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![Coverage](https://codecov.io/gh/Beforerr/Speasy.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/Beforerr/Speasy.jl)
 
 A simple Julia wrapper around [Speasy](https://github.com/SciQLop/speasy), a Python package to deal with main Space Physics WebServices.
 
