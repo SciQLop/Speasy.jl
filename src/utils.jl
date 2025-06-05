@@ -64,6 +64,7 @@ _key_names(p::AbstractDataSet) = keys(parameters(p))
 _key_names(p::AbstractArray) = nothing
 
 _compat(arg) = string(arg)
+_compat(arg::Py) = arg
 _compat(arg::AbstractVector) = _compat.(arg)
 _compat(arg::NTuple{2}) = collect(_compat.(arg))
 
