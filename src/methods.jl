@@ -83,7 +83,7 @@ function Unitful.unit(var::AbstractDataContainer)
     catch
     end
     try # replace space by *
-        u_str = replace(u_str, " " => "*", "{" => "", "}" => "", "#" => "1", "sec" => "s", "cm3" => "cm^3")
+        u_str = replace(u_str, " " => "*", "{" => "", "}" => "", "#" => "1", "sec" => "s", "cm3" => "cm^3", "cc" => "cm^3")
         return uparse(u_str)
     catch
     end
