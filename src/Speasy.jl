@@ -79,8 +79,8 @@ function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
 end
 
 function get_data(ds::AbstractDataSet, args...; provider=provider(ds), kwargs...)
-    products = products(ds; provider)
-    get_data(products, args...; kwargs...)
+    pds = products(ds; provider)
+    get_data(pds, args...; kwargs...)
 end
 
 init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)

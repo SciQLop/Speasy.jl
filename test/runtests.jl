@@ -13,16 +13,17 @@ end
     using Dates
     using Dates: AbstractDateTime
     using Unitful
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
     @test times(spz_var) isa Vector{<:AbstractDateTime}
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
+    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], "2016-6-2", "2016-6-3") isa NamedTuple
 end
 
 @testitem "Array Interface" begin
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
     @info typeof(spz_var)
     @test spz_var isa AbstractArray
     @test Array(spz_var) isa Array
@@ -36,7 +37,7 @@ end
     spz = speasy
     # Dynamic inventory
     amda_tree = spz.inventories.data_tree.amda
-    @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-5") isa SpeasyVariable
+    @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-3") isa SpeasyVariable
 
     mms1_products = spz.inventories.tree.cda.MMS.MMS1
     @test get_data(
@@ -72,7 +73,7 @@ end
 
 @testitem "DimensionalData" begin
     using DimensionalData
-    spz_var1 = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    spz_var1 = get_data("amda/imf", "2016-6-2", "2016-6-3")
     @test DimArray(spz_var1) isa DimArray
 
     spz_var2 = get_data("amda/solo_het_omni_hflux", "2020-11-28T00:00", "2020-11-28T00:10")
@@ -81,7 +82,7 @@ end
 
 @testitem "TimeSeriesExt.jl" tags = [:skipci] begin
     using TimeSeries
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
     @test TimeArray(spz_var) isa TimeArray
 end
 
@@ -89,6 +90,6 @@ end
     import Pkg
     Pkg.add("CairoMakie")
     using CairoMakie
-    da = get_data("amda/imf", "2016-6-2", "2016-6-5")
+    da = get_data("amda/imf", "2016-6-2", "2016-6-3")
     plot(da)
 end
