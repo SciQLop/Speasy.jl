@@ -7,7 +7,11 @@ import Speasy: get_data, getdimarray, sanitize!
 import DimensionalData: DimArray, DimStack, dims
 
 
-DimensionalData.dims(v::SpeasyVariable) = (Ti(v.dims[1]), Y(v.dims[2]))
+function DimensionalData.dims(v::SpeasyVariable)
+    dim1 = Ti(v.dims[1])
+    dim2 = Y(1:length(v.dims[2]))
+    return (dim1, dim2)
+end
 
 """
     DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=false)
