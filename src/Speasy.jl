@@ -60,15 +60,15 @@ Get data using `speasy` Python package. We support the same arguments as `speasy
 
 Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
 """
-function get_data(args...; drop_nan=false, sanitize=false)
+function get_data(args...; kw...)
     provider = get_provider(args[1])
     if provider in ("ssc", "sscweb")
         splits = split(args[1], "/")
         prod = splits[2]
         coord = get(splits, 3, "gse")
-        return ssc_get_data(prod, args[2:end]..., coord)
+        return ssc_get_data(prod, args[2:end]..., coord; kw...)
     else
-        return general_get_data(args...; drop_nan, sanitize)
+        return general_get_data(args...; kw...)
     end
 end
 
