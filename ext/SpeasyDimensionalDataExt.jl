@@ -3,7 +3,7 @@ using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
 using Unitful
-import Speasy: get_data, getdimarray, sanitize!
+import Speasy: get_data, getdimarray
 import DimensionalData: DimArray, DimStack, dims
 
 
@@ -14,13 +14,13 @@ function DimensionalData.dims(v::SpeasyVariable)
 end
 
 """
-    DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=false)
+    DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=true)
 
 Convert a `SpeasyVariable` to a `DimArray`.
 By default, it adds axes and adds units. Disabling `add_axes` could improve performance.
 """
-function DimArray(v::SpeasyVariable; f=sanitize!, add_unit=true, add_axes=true, add_metadata=true)
-    values = add_unit ? parent(f(v)) * Unitful.unit(v) : parent(f(v))
+function DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=true)
+    values = add_unit ? parent(v) .* Unitful.unit(v) : parent(v)
     name = Symbol(v.name)
 
     metadata = add_metadata ? Dict{Any,Any}(meta(v)) : Dict{Any,Any}()

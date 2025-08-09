@@ -1,20 +1,22 @@
 get_provider(s) = nothing
 get_provider(s::String) = first(eachsplit(s, "/"))
 
-function general_get_data(prod::String, t0, t1; drop_nan=false, sanitize=false)
+function general_get_data(prod::String, t0, t1; drop_nan = false, sanitize = true)
     v = speasy_get_data(_compat(prod), _compat(t0), _compat(t1))
     pyisnone(v) && return nothing
     drop_nan && (v = py_drop_nan(v))
-    sanitize && (v = pysanitize(v))
-    SpeasyVariable(v)
+    var = SpeasyVariable(v)
+    sanitize && sanitize!(var)
+    return var
 end
 
-function general_get_data(args...; drop_nan=false, sanitize=false)
+function general_get_data(args...; drop_nan = false, sanitize = true)
     v = speasy_get_data(_compat.(args)...)
     pyisnone(v) && return nothing
     drop_nan && (v = apply_recursively(v, py_drop_nan, is_pylist))
-    sanitize && (v = apply_recursively(v, pysanitize, is_pylist))
-    apply_recursively(v, SpeasyVariable, is_pylist)
+    vars = apply_recursively(v, SpeasyVariable, is_pylist)
+    sanitize && apply_recursively(vars, sanitize!, x -> !(eltype(x) <: Number))
+    return vars
 end
 
 """
@@ -30,5 +32,5 @@ Reference: [Speasy Documentation](https://speasy.readthedocs.io/en/latest/user/s
 """
 function ssc_get_data(args...)
     v = @pyconst(speasy.ssc.get_data)(_compat.(args)...)
-    pyisnone(v) ? nothing : SpeasyVariable(v)
+    return pyisnone(v) ? nothing : SpeasyVariable(v)
 end
