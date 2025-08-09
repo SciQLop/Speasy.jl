@@ -25,6 +25,7 @@ export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize!
 export isspectrogram
 export speasyplot, speasyplot!
 export DataSet, SpeasyProduct
+export @spz_str
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
 export getdimarray
 

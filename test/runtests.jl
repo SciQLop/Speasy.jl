@@ -9,6 +9,25 @@ using TestItems, TestItemRunner
     Aqua.test_all(Speasy)
 end
 
+@testitem "spz_str macro" begin
+    # Test single parameter
+    using Speasy: Product
+    product = spz"cda/OMNI_HRO_1MIN/flow_speed"
+    @test product isa Product
+    @test product.data == "cda/OMNI_HRO_1MIN/flow_speed"
+
+    # Test multiple parameters with spaces
+    products_spaces = spz"cda/OMNI_HRO_1MIN/flow_speed, Bx_gse , By_gse"
+    @test products_spaces isa Tuple
+    @test length(products_spaces) == 3
+    @test products_spaces[1].data == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test products_spaces[2].data == "cda/OMNI_HRO_1MIN/Bx_gse"
+    @test products_spaces[3].data == "cda/OMNI_HRO_1MIN/By_gse"
+
+    # Test error case - invalid format
+    @test_throws Exception eval(:(spz"invalid_format,param"))
+end
+
 @testitem "Speasy.jl" begin
     using Dates
     using Dates: AbstractDateTime
@@ -30,7 +49,7 @@ end
     @test size(spz_var, 2) == 3
     @test spz_var[1, 2] == Array(spz_var)[1, 2]
     @test eltype(spz_var) == Float32
-    @test similar(spz_var) isa Array{Float32,2}
+    @test similar(spz_var) isa Array{Float32, 2}
 end
 
 @testitem "Dynamic inventory" begin
@@ -44,7 +63,7 @@ end
         [
             mms1_products.FGM.MMS1_FGM_SRVY_L2.mms1_fgm_b_gsm_srvy_l2,
             mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_tempperp_fast,
-            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_temppara_fast
+            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_temppara_fast,
         ],
         "2017-01-01T02:00:00",
         "2017-01-01T02:00:15"
