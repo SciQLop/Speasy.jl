@@ -59,15 +59,17 @@ end
     @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-3") isa SpeasyVariable
 
     mms1_products = spz.inventories.tree.cda.MMS.MMS1
-    @test get_data(
+    data = get_data(
         [
             mms1_products.FGM.MMS1_FGM_SRVY_L2.mms1_fgm_b_gsm_srvy_l2,
             mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_tempperp_fast,
-            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_temppara_fast,
+            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_energyspectr_omni_fast
         ],
         "2017-01-01T02:00:00",
         "2017-01-01T02:00:15"
-    ) isa Vector{<:SpeasyVariable}
+    ) 
+    @test data isa Vector{<:SpeasyVariable}
+    @test data[3]["DEPEND_1"] isa Speasy.VariableAxis
 
 
     # More complex requests
