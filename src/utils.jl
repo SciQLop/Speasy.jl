@@ -1,4 +1,4 @@
-using StatsBase: median
+using Statistics: median
 
 # temporary solution, related to https://github.com/JuliaPy/PythonCall.jl/pull/509
 convert_time(::Type{<:DateTime}, t::Py) = DateTime(pyconvert(String, pystr(t.astype("datetime64[ms]")))) # pyconvert(DateTime, pyt0.astype("datetime64[ms]").item()) # slower
