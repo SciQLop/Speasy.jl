@@ -42,14 +42,19 @@ end
 end
 
 @testitem "Array Interface" begin
+    using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
     @info typeof(spz_var)
     @test spz_var isa AbstractArray
-    @test Array(spz_var) isa Array
+    @test parent(spz_var) isa PyArray
+    @test_nowarn Array(spz_var)
     @test size(spz_var, 2) == 3
     @test spz_var[1, 2] == Array(spz_var)[1, 2]
     @test eltype(spz_var) == Float32
-    @test similar(spz_var) isa Array{Float32, 2}
+
+    copied_var = copy(spz_var)
+    @test copied_var isa SpeasyVariable
+    @test !isa(parent(copied_var), PyArray)
 end
 
 @testitem "Dynamic inventory" begin
