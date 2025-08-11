@@ -13,7 +13,7 @@ using Dates
 using NanoDates
 using Unitful
 using ConcreteStructs
-import Base: getproperty, summarysize
+import Base: getproperty, summarysize, similar
 import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta, name
