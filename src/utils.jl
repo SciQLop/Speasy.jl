@@ -78,3 +78,16 @@ macro py2jl(expr)
     field = expr.args[2]
     return :(py2jl_getproperty($(esc(obj)), $(field)))
 end
+
+"""
+    @update! dict key value
+
+If `key` exists in `dict`, assign `dict[key] = value`.
+"""
+macro update!(dict, key, value)
+    quote
+        if haskey($(esc(dict)), $(esc(key)))
+            $(esc(dict))[$(esc(key))] = $(esc(value))
+        end
+    end
+end

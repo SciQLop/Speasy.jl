@@ -5,6 +5,7 @@ using Speasy: AbstractSupportDataContainer
 using Unitful
 import Speasy: get_data, getdimarray
 import DimensionalData: DimArray, DimStack, dims
+using SpaceDataModel: NoMetadata
 
 
 function DimensionalData.dims(v::SpeasyVariable)
@@ -23,16 +24,7 @@ function DimArray(v::SpeasyVariable; add_unit=true, add_axes=true, add_metadata=
     values = add_unit ? parent(v) .* Unitful.unit(v) : parent(v)
     name = Symbol(v.name)
 
-    metadata = add_metadata ? Dict{Any,Any}(meta(v)) : Dict{Any,Any}()
-    if isspectrogram(v)
-        y = VariableAxis(v.axes[1])
-        ymeta = meta(y)
-        add_metadata && (metadata[:ymeta] = ymeta)
-        haskey(ymeta, "SCALETYP") && (metadata[:yscale] = ymeta["SCALETYP"])
-        haskey(ymeta, "LABLAXIS") && (metadata[:ylabel] = ymeta["LABLAXIS"])
-        haskey(ymeta, "UNITS") && (metadata[:yunit] = ymeta["UNITS"])
-        add_axes && push!(metadata, "y" => y)
-    end
+    metadata = add_metadata ? meta(v) : NoMetadata()
     DimArray(values, dims(v); name, metadata)
 end
 
