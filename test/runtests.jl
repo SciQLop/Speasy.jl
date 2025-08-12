@@ -9,6 +9,11 @@ using TestItems, TestItemRunner
     Aqua.test_all(Speasy)
 end
 
+@testsnippet DataShare begin
+    tmin = "2016-6-2"
+    tmax = "2016-6-2T02"
+end
+
 @testitem "spz_str macro" begin
     # Test single parameter
     using Speasy: Product
@@ -28,22 +33,21 @@ end
     @test_throws Exception eval(:(spz"invalid_format,param"))
 end
 
-@testitem "Speasy.jl" begin
-    using Dates
+@testitem "Speasy.jl" setup = [DataShare] begin
     using Dates: AbstractDateTime
     using Unitful
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
+    spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
     @test times(spz_var) isa Vector{<:AbstractDateTime}
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
-    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], "2016-6-2", "2016-6-3") isa NamedTuple
+    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple
 end
 
-@testitem "Array Interface" begin
+@testitem "Array Interface" setup = [DataShare] begin
     using Speasy.PythonCall: PyArray
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
+    spz_var = get_data("amda/imf", tmin, tmax)
     @info typeof(spz_var)
     @test spz_var isa AbstractArray
     @test parent(spz_var) isa PyArray
@@ -57,11 +61,11 @@ end
     @test !isa(parent(copied_var), PyArray)
 end
 
-@testitem "Dynamic inventory" begin
+@testitem "Dynamic inventory" setup = [DataShare] begin
     spz = speasy
     # Dynamic inventory
     amda_tree = spz.inventories.data_tree.amda
-    @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-3") isa SpeasyVariable
+    @test get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, tmin, tmax) isa SpeasyVariable
 
     mms1_products = spz.inventories.tree.cda.MMS.MMS1
     data = get_data(
@@ -71,7 +75,7 @@ end
             mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_energyspectr_omni_fast
         ],
         "2017-01-01T02:00:00",
-        "2017-01-01T02:00:15"
+        "2017-01-01T02:00:05"
     ) 
     @test data isa Vector{<:SpeasyVariable}
     @test data[3]["DEPEND_1"] isa Speasy.VariableAxis
@@ -85,7 +89,7 @@ end
         spz.inventories.tree.cda.Wind.WIND.MFI.WI_H2_MFI.BGSE,
         spz.inventories.tree.ssc.Trajectories.wind,
     ]
-    intervals = [["2010-01-02", "2010-01-02T10"], ["2009-08-02", "2009-08-02T10"]]
+    intervals = [["2010-01-02", "2010-01-02T01"], ["2009-08-02", "2009-08-02T01"]]
     data = get_data(products, intervals)
     @test data isa Vector{Vector}
     @test data[1] isa Vector{<:SpeasyVariable}
@@ -97,25 +101,25 @@ end
     @test get_data("ssc/mms1/gsm", "2018-01-01", "2018-01-02") isa SpeasyVariable
 end
 
-@testitem "DimensionalData" begin
+@testitem "DimensionalData" setup = [DataShare] begin
     using DimensionalData
-    spz_var1 = get_data("amda/imf", "2016-6-2", "2016-6-3")
+    spz_var1 = get_data("amda/imf", tmin, tmax)
     @test DimArray(spz_var1) isa DimArray
 
     spz_var2 = get_data("amda/solo_het_omni_hflux", "2020-11-28T00:00", "2020-11-28T00:10")
     @test DimArray(spz_var2) isa DimArray
 end
 
-@testitem "TimeSeriesExt.jl" tags = [:skipci] begin
+@testitem "TimeSeriesExt.jl" tags = [:skipci] setup = [DataShare] begin
     using TimeSeries
-    spz_var = get_data("amda/imf", "2016-6-2", "2016-6-3")
+    spz_var = get_data("amda/imf", tmin, tmax)
     @test TimeArray(spz_var) isa TimeArray
 end
 
-@testitem "MakieExt.jl" tags = [:skipci] begin
+@testitem "MakieExt.jl" tags = [:skipci] setup = [DataShare] begin
     import Pkg
     Pkg.add("CairoMakie")
     using CairoMakie
-    da = get_data("amda/imf", "2016-6-2", "2016-6-3")
+    da = get_data("amda/imf", tmin, tmax)
     plot(da)
 end
