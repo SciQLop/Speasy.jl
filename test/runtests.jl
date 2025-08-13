@@ -1,12 +1,18 @@
 using Speasy
-using Test
-using TestItems, TestItemRunner
+using Test, TestItemRunner
 
 @run_package_tests filter = ti -> !(:skipci in ti.tags)
 
 @testitem "Aqua" begin
     using Aqua
     Aqua.test_all(Speasy)
+end
+
+@testitem "Workload" begin
+    using JET
+    using Speasy.PythonCall
+    @test_opt target_modules = (Speasy,) Speasy.workload()
+    @test_call target_modules = (Base, PythonCall) Speasy.workload()
 end
 
 @testsnippet DataShare begin
@@ -20,6 +26,7 @@ end
     product = spz"cda/OMNI_HRO_1MIN/flow_speed"
     @test product isa Product
     @test product.data == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test spz"OMNI_HRO_1MIN/flow_speed" isa Product
 
     # Test multiple parameters with spaces
     products_spaces = spz"cda/OMNI_HRO_1MIN/flow_speed, Bx_gse , By_gse"
