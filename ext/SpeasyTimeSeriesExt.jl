@@ -1,7 +1,7 @@
 module SpeasyTimeSeriesExt
 
 using Speasy
-using Speasy: name, times, values, columns, meta
+using Speasy: name, times, columns, meta
 import TimeSeries: TimeArray
 
 function TimeArray(s::SpeasyVariable)

@@ -20,7 +20,7 @@ import SpaceDataModel: times, units, meta, name
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
-export times, units, meta, name
+export times, units, name
 export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize!
 export speasyplot, speasyplot!
 export SpeasyProduct
