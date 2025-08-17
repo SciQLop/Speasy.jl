@@ -20,6 +20,7 @@ end
     product = spz"cda/OMNI_HRO_1MIN/flow_speed"
     @test product isa Product
     @test product.data == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test spz"OMNI_HRO_1MIN/flow_speed" isa Product
 
     # Test multiple parameters with spaces
     products_spaces = spz"cda/OMNI_HRO_1MIN/flow_speed, Bx_gse , By_gse"
