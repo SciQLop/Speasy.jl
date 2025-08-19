@@ -61,13 +61,18 @@ pysanitize(var::Py; drop_out_of_range_values=false, kw...) =
     var.sanitized(; drop_out_of_range_values, kw...)
 
 
-function sanitize!(var; replace_invalid=true, replace_fillval=true, kwargs...)
-    # Replace values outside valid range with NaN
-    replace_invalid && replace_invalid!(var)
-    replace_fillval && replace_fillval_by_nan!(var)
+function sanitize!(var; replace_invalid=true, replace_fillval=true, verbose=false, kwargs...)
+    T = eltype(var)
+    if T <: AbstractFloat
+        replace_invalid && replace_invalid!(var)
+        replace_fillval && replace_fillval_by_nan!(var)
+    else
+        verbose && @warn "Cannot replace invalid or fill values for $(name(var)) of type $T"
+    end
     return var
 end
 
+isprovider(s) = Symbol(s) in (:amda, :cda, :csa, :ssc, :archive)
 contain_provider(s::String) = first(eachsplit(s, "/")) in ("amda", "cda", "csa", "ssc", "archive")
 isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
 
