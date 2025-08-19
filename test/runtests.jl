@@ -1,12 +1,18 @@
 using Speasy
-using Test
-using TestItems, TestItemRunner
+using Test, TestItemRunner
 
 @run_package_tests filter = ti -> !(:skipci in ti.tags)
 
 @testitem "Aqua" begin
     using Aqua
     Aqua.test_all(Speasy)
+end
+
+@testitem "Workload" begin
+    using JET
+    using Speasy.PythonCall
+    @test_opt target_modules = (Speasy,) Speasy.workload()
+    @test_call target_modules = (Base, PythonCall) Speasy.workload()
 end
 
 @testsnippet DataShare begin

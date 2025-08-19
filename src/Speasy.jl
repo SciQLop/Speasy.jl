@@ -33,6 +33,7 @@ include("methods.jl")
 include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
+include("workload.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
