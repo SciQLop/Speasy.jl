@@ -26,6 +26,7 @@ export speasyplot, speasyplot!
 export SpeasyProduct
 export @spz_str
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
+export list_parameters, list_datasets
 
 include("utils.jl")
 include("types.jl")
@@ -33,6 +34,7 @@ include("methods.jl")
 include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
+include("listing.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()

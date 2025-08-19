@@ -59,9 +59,8 @@ end
 
 vartype(var) = vartype(var.meta["VAR_TYPE"])
 
-_key_names(p) = keys(p)
+_key_names(p) = nothing
 _key_names(p::AbstractDataSet) = keys(parameters(p))
-_key_names(p::AbstractArray) = nothing
 
 _compat(arg) = string(arg)
 _compat(arg::Py) = arg
