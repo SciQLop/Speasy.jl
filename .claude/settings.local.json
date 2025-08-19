@@ -3,7 +3,13 @@
     "allow": [
       "Bash(jj status:*)",
       "Bash(jj diff:*)",
-      "Bash(jj describe:*)"
+      "Bash(jj describe:*)",
+      "Bash(gh pr:*)",
+      "Bash(jj new:*)",
+      "Bash(jj git push:*)",
+      "Bash(jj rebase:*)",
+      "Bash(jj log:*)",
+      "Bash(jj bookmark:*)"
     ],
     "deny": [],
     "ask": []
