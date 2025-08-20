@@ -7,6 +7,7 @@ Links: [GitHub](https://github.com/SciQLop/speasy), [Documentation](https://spea
 """
 module Speasy
 
+using Accessors: @set
 using PythonCall
 using PythonCall.Core: pyisnone
 using Dates

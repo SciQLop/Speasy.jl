@@ -12,6 +12,8 @@
 ## Pull Request Workflow
 1. Check PR status and wait for all checks to pass before merging
 2. Merge PRs when all checks are successful (prefer `squash and merge`)
+3. Delete the branch after merging.
+4. Fetch from github `jj git fetch` and rebase new commits to main.
 
 ## Commit Messages
 - Follow conventional commit format

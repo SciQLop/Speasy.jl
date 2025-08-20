@@ -62,6 +62,15 @@ end
     copied_var = copy(spz_var)
     @test copied_var isa SpeasyVariable
     @test !isa(parent(copied_var), PyArray)
+
+    # Test similar method for VariableAxis
+    spz_var = get_data("cda/SOHO_ERNE-HED_L2-1MIN/AH", "20211028T06", "20211028T06:10")
+    axis = spz_var.metadata["DEPEND_1"]
+    @test axis isa Speasy.VariableAxis
+    similar_axis = similar(axis, Float64, (10,))
+    @test similar_axis isa Speasy.VariableAxis
+    @test eltype(similar_axis) == Float64
+    @test size(similar_axis) == (10,)
 end
 
 @testitem "Dynamic inventory" setup = [DataShare] begin
