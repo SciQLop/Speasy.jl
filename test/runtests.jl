@@ -43,7 +43,9 @@ end
     @test times(spz_var) isa Vector{<:AbstractDateTime}
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
-    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple
+    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
+    names = (:amda_imf, :amda_dst)
+    @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
 end
 
 @testitem "Array Interface" setup = [DataShare] begin
@@ -77,7 +79,7 @@ end
         ],
         "2017-01-01T02:00:00",
         "2017-01-01T02:00:05"
-    ) 
+    )
     @test data isa Vector{<:SpeasyVariable}
     @test data[3]["DEPEND_1"] isa Speasy.VariableAxis
 
@@ -148,7 +150,7 @@ end
     cda_datasets = list_datasets(:cda)
     @test cda_datasets isa AbstractVector{String}
     @test length(cda_datasets) > 0
-    
+
     # Test filtering by substring
     omni_datasets = list_datasets(:cda, :OMNI)
     @test omni_datasets isa AbstractVector{String}
@@ -160,4 +162,12 @@ end
     @test specific_datasets isa AbstractVector{String}
     @test all(ds -> occursin("OMNI", ds) && occursin("HRO", ds), specific_datasets)
     @test length(specific_datasets) <= length(omni_datasets)
+end
+
+@testitem "issue 223" begin
+    # https://github.com/SciQLop/speasy/issues/223
+    data = get_data(NamedTuple, ["cda/STA_L1_HET/Proton_Flux", "cda/OMNI_HRO_1MIN/flow_speed"], "20201028", "20201029")
+    @test data isa NamedTuple
+    @test haskey(data, :flow_speed)
+    @test haskey(data, :Proton_Flux)
 end
