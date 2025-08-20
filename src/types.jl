@@ -14,6 +14,10 @@ function Base.show(io::IO, T::Type{<:AbstractDataContainer})
     return print(io, "$(nameof(T)){$(eltype(T)), $(ndims(T))}")
 end
 
+function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
+    return @set A.data = similar(A.data, S, dims)
+end
+
 function SpeasyVariable(py::Py)
     data = PyArray(py."values", copy = false)
     # time is stored as (converted to) a `Array` instead of `PyArray` (as `PyArray` cannot convert this Python `ndarray`).
@@ -23,8 +27,6 @@ function SpeasyVariable(py::Py)
     @update! metadata "DEPEND_2" VariableAxis(py."axes"[2])
     return SpeasyVariable(py, data, dims, pyconvert(String, py."name"), metadata)
 end
-
-Base.similar(A::SpeasyVariable, ::Type{S}, dims::Dims) where {S} = SpeasyVariable(A.py, similar(A.data, S, dims), A.dims, A.name, A.metadata)
 
 """
 A wrapper of `speasy.VariableAxis`.
