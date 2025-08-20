@@ -4,13 +4,15 @@
       "Bash(jj status:*)",
       "Bash(jj diff:*)",
       "Bash(jj describe:*)",
-      "Bash(gh pr:*)",
       "Bash(jj new:*)",
       "Bash(jj git push:*)",
       "Bash(jj rebase:*)",
       "Bash(jj log:*)",
       "Bash(jj bookmark:*)",
-      "Bash(gh api:*)"
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []

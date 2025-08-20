@@ -2,7 +2,7 @@
 
 ## Version Control
 - Use Jujutsu (jj) for version control instead of git
-- Use `jj new` to create separate commits for different purposes
+- Use `jj new` to create separate commits for different purposes (when the description is empty, no need to create a new commit)
 - When triggering Julia package registration, comment on the commit page with `@JuliaRegistrator register()`
 
 ## Version Bumping
