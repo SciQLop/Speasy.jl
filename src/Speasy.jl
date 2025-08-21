@@ -22,7 +22,7 @@ import SpaceDataModel: times, units, meta, name
 export speasy, SpeasyVariable, VariableAxis
 export get_data
 export times, units, name
-export replace_fillval_by_nan, replace_fillval_by_nan!, sanitize!
+export sanitize!, replace_fillval_by_nan!, replace_invalid!
 export speasyplot, speasyplot!
 export SpeasyProduct
 export @spz_str
@@ -52,7 +52,7 @@ function __init__()
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
     PythonCall.pycopy!(np, pyimport("numpy"))
     PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
-    VERSION[] = pyconvert(String, speasy."__version__")
+    return VERSION[] = pyconvert(String, speasy."__version__")
 end
 
 """
@@ -74,7 +74,7 @@ function get_data(args...; kw...)
     end
 end
 
-function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
+function get_data(::Type{<:NamedTuple}, p, args...; names = nothing, kwargs...)
     data = get_data(p, args...; kwargs...)
     names = if isnothing(names) && isnothing(_key_names(p))
         # Handle mixed case where some data is nothing and some is valid
@@ -87,17 +87,17 @@ function get_data(::Type{<:NamedTuple}, p, args...; names=nothing, kwargs...)
     return NamedTuple{Tuple(Symbol.(names))}(data)
 end
 
-function get_data(ds::AbstractDataSet, args...; provider=provider(ds), kwargs...)
+function get_data(ds::AbstractDataSet, args...; provider = provider(ds), kwargs...)
     pds = products(ds; provider)
-    get_data(pds, args...; kwargs...)
+    return get_data(pds, args...; kwargs...)
 end
 
-init_amda() = request_dispatch."init_amda"(ignore_disabled_status=true)
-init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status=true)
-init_csa() = request_dispatch."init_csa"(ignore_disabled_status=true)
-init_sscweb() = request_dispatch."init_sscweb"(ignore_disabled_status=true)
-init_archive() = request_dispatch."init_archive"(ignore_disabled_status=true)
-init_providers() = request_dispatch."init_providers"(ignore_disabled_status=true)
+init_amda() = request_dispatch."init_amda"(ignore_disabled_status = true)
+init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status = true)
+init_csa() = request_dispatch."init_csa"(ignore_disabled_status = true)
+init_sscweb() = request_dispatch."init_sscweb"(ignore_disabled_status = true)
+init_archive() = request_dispatch."init_archive"(ignore_disabled_status = true)
+init_providers() = request_dispatch."init_providers"(ignore_disabled_status = true)
 
 function speasyplot end
 function speasyplot! end
