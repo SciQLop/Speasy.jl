@@ -4,12 +4,20 @@
 Find the available parameters for a given `provider` or for a specific `dataset` from `provider`.
 
 # Examples
-```julia
+```jldoctest
 # List all parameters from AMDA provider
 list_parameters(:amda)
 
 # List parameters from specific CDA dataset
-list_parameters(:cda, "OMNI_HRO_1MIN")
+list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN")
+
+# output
+5-element Vector{String}:
+ "est"
+ "PH"
+ "AH"
+ "PHC"
+ "AHC"
 ```
 
 See also: [`list_datasets`](@ref)
@@ -34,15 +42,22 @@ spz_name(py) = pyconvert(String, py.spz_name())
 Find the available datasets for a given provider, optionally filtered by search terms (only datasets containing all specified terms will be returned.)
 
 # Examples
-```julia
+```jldoctest
 # List all datasets from AMDA provider
 list_datasets(:amda)
 
-# Filter CDA datasets containing "OMNI"
+# List CDA datasets containing "OMNI"
 list_datasets(:cda, :OMNI)
 
-# Filter CDA datasets containing both "OMNI" and "HRO"
+# List CDA datasets containing both "OMNI" and "HRO"
 list_datasets(:cda, :OMNI, :HRO)
+
+# output
+4-element Vector{String}:
+ "OMNI_HRO_1MIN"
+ "OMNI_HRO2_1MIN"
+ "OMNI_HRO_5MIN"
+ "OMNI_HRO2_5MIN"
 ```
 
 See also: [`list_parameters`](@ref)

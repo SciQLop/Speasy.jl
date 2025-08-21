@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Speasy = "09b745ad-c67d-442f-94a6-c7f4d1e4d861"
+
+[sources]
+Speasy = { path = ".." }
