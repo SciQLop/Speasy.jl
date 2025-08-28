@@ -10,8 +10,7 @@ module Speasy
 using Accessors: @set
 using PythonCall
 using PythonCall.Core: pyisnone
-using Dates
-using NanoDates
+using UnixTimes: UnixTime
 using Unitful
 using ConcreteStructs
 import Base: getproperty, summarysize, similar
