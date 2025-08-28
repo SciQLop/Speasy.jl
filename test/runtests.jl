@@ -40,7 +40,7 @@ end
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
-    @test times(spz_var) isa Vector{<:AbstractDateTime}
+    @test eltype(times(spz_var)) <: AbstractDateTime
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}

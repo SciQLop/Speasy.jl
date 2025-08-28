@@ -20,7 +20,6 @@ end
 
 function SpeasyVariable(py::Py)
     data = PyArray(py."values", copy = false)
-    # time is stored as (converted to) a `Array` instead of `PyArray` (as `PyArray` cannot convert this Python `ndarray`).
     dims = (pyconvert_time(py."time"), 1:size(data, 2))
     metadata = pyconvert(Dict{Any, Any}, py."meta")
     @update! metadata "DEPEND_1" VariableAxis(py."axes"[1])

@@ -1,9 +1,3 @@
-using Statistics: median
-
-# temporary solution, related to https://github.com/JuliaPy/PythonCall.jl/pull/509
-convert_time(::Type{<:DateTime}, t::Py) = DateTime(pyconvert(String, pystr(t.astype("datetime64[ms]")))) # pyconvert(DateTime, pyt0.astype("datetime64[ms]").item()) # slower
-convert_time(::Type{<:NanoDate}, t::Py) = NanoDate(pyconvert(String, pystr(t)))
-
 py_drop_nan(x) = x[np.isfinite(x).reshape(-1)]
 
 """
@@ -11,24 +5,13 @@ py_drop_nan(x) = x[np.isfinite(x).reshape(-1)]
 
 Convert `times` from Python to Julia.
 
-It automatically choose the time type based on the time resolution.
-
 Much faster than `pyconvert(Array, times)`
 """
-function pyconvert_time(times; N = 1000)
-    if length(times) == 0
-        return DateTime[]
-    end
-    dt_min = Nanosecond(1)
-    pyt0 = times[0]
-    dt_f = PyArray((times - pyt0) / pyns, copy = false)
-    dt_med = median(length(dt_f) > N ? view(dt_f, 1:N) : dt_f)
-    tType = dt_med > 1.0e7 ? DateTime : NanoDate
-    t0 = convert_time(tType, pyt0)
-
-    return map(dt_f) do dt
-        !isnan(dt) ? t0 + dt * dt_min : missing
-    end
+function pyconvert_time(times)
+    len = length(times)
+    len == 0 && return UnixTime[]
+    py_ns = PyArray(times.view("i8"), copy = false)
+    return reinterpret(UnixTime, py_ns)
 end
 
 is_pylist(x) = pyisinstance(x, pybuiltins.list)
