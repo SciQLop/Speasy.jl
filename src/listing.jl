@@ -1,7 +1,9 @@
 """
-    list_parameters(provider, [dataset])
+    list_parameters(provider, [dataset]; verbose=false)
 
 Find the available parameters for a given `provider` or for a specific `dataset` from `provider`.
+
+Set `verbose=true` to print the metadata of the dataset.
 
 # Examples
 ```jldoctest
@@ -20,7 +22,7 @@ list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN")
  "AHC"
 ```
 
-See also: [`list_datasets`](@ref)
+See also: [`find_datasets`](@ref)
 """
 function list_parameters(s)
     provider_py = getproperty(speasy, s)
@@ -28,29 +30,45 @@ function list_parameters(s)
     return pyconvert(PyList{String}, pylist(dict))
 end
 
-function list_parameters(provider, dataset)
+# https://github.com/SciQLop/speasy/blob/main/speasy/products/dataset.py
+# https://github.com/SciQLop/speasy/blob/main/speasy/core/inventory/indexes.py
+function print_dataset_metadata(dataset_py)
+    dict = PyDict{String, Py}(dataset_py.__dict__)
+    ParameterIndex = @pyconst pyimport("speasy.core.inventory.indexes").ParameterIndex
+    io = IOBuffer()
+    println(io, "DatasetIndex Metadata:")
+    for (key, value) in dict
+        if !pyisinstance(value, ParameterIndex)
+            println(io, "  ", key, ": ", value)
+        end
+    end
+    return @info String(take!(io))
+end
+
+function list_parameters(provider, dataset; verbose = false)
     provider_py = getproperty(speasy, String(provider))
     dataset_py = provider_py.flat_inventory.datasets[pystr(dataset)] # this is a iterator
+    verbose && print_dataset_metadata(dataset_py)
     return map(spz_name, dataset_py)
 end
 
 spz_name(py) = pyconvert(String, py.spz_name())
 
 """
-    list_datasets(provider, [term...])
+    find_datasets(provider, [term...])
 
 Find the available datasets for a given provider, optionally filtered by search terms (only datasets containing all specified terms will be returned.)
 
 # Examples
 ```jldoctest
 # List all datasets from AMDA provider
-list_datasets(:amda)
+find_datasets(:amda)
 
 # List CDA datasets containing "OMNI"
-list_datasets(:cda, :OMNI)
+find_datasets(:cda, :OMNI)
 
 # List CDA datasets containing both "OMNI" and "HRO"
-list_datasets(:cda, :OMNI, :HRO)
+find_datasets(:cda, :OMNI, :HRO)
 
 # output
 4-element Vector{String}:
@@ -62,13 +80,13 @@ list_datasets(:cda, :OMNI, :HRO)
 
 See also: [`list_parameters`](@ref)
 """
-function list_datasets(provider)
+function find_datasets(provider)
     provider_py = getproperty(speasy, provider)
     dict = provider_py.flat_inventory.datasets
     return pyconvert(PyList{String}, pylist(dict))
 end
 
-function list_datasets(provider, s...)
+function find_datasets(provider, s...)
     provider_py = getproperty(speasy, provider)
     dict = provider_py.flat_inventory.datasets
     datasets = String[]

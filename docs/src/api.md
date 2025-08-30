@@ -6,7 +6,7 @@
 get_data
 @spz_str
 list_parameters
-list_datasets
+find_datasets
 ```
 
 ## Data Types
