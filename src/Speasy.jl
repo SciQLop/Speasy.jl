@@ -17,6 +17,7 @@ import Base: getproperty, summarysize, similar
 import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta, name
+using NetworkOptions
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
@@ -35,23 +36,25 @@ include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
 include("listing.jl")
+include("error.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
-const pyns = PythonCall.pynew()
-const np = PythonCall.pynew()
 const VERSION = Ref{String}()
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
+
+    cafile = pyimport("ssl").get_default_verify_paths().cafile
+    pyisnone(cafile) && fix_ssl_cert!()
+
     PythonCall.pycopy!(speasy, pyimport("speasy"))
     PythonCall.pycopy!(speasy_get_data, pyimport("speasy").get_data)
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
-    PythonCall.pycopy!(np, pyimport("numpy"))
-    PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
-    return VERSION[] = pyconvert(String, speasy."__version__")
+    VERSION[] = pyconvert(String, speasy."__version__")
+    return
 end
 
 """
@@ -91,12 +94,10 @@ function get_data(ds::AbstractDataSet, args...; provider = provider(ds), kwargs.
     return get_data(pds, args...; kwargs...)
 end
 
-init_amda() = request_dispatch."init_amda"(ignore_disabled_status = true)
-init_cdaweb() = request_dispatch."init_cdaweb"(ignore_disabled_status = true)
-init_csa() = request_dispatch."init_csa"(ignore_disabled_status = true)
-init_sscweb() = request_dispatch."init_sscweb"(ignore_disabled_status = true)
-init_archive() = request_dispatch."init_archive"(ignore_disabled_status = true)
-init_providers() = request_dispatch."init_providers"(ignore_disabled_status = true)
+for provider in (:amda, :cdaweb, :csa, :sscweb, :archive, :providers)
+    f = Symbol(:init_, provider)
+    @eval $f() = request_dispatch.$f(ignore_disabled_status = true)
+end
 
 function speasyplot end
 function speasyplot! end
