@@ -1,19 +1,17 @@
 get_provider(_) = nothing
 get_provider(s::String) = first(eachsplit(s, "/"))
 
-function general_get_data(prod::String, t0, t1; drop_nan = false, sanitize = true, kw...)
+function general_get_data(prod::String, t0, t1; sanitize = true, kw...)
     v = speasy_get_data(_compat(prod), _compat(t0), _compat(t1); kw...)
     pyisnone(v) && return nothing
-    drop_nan && (v = py_drop_nan(v))
     var = SpeasyVariable(v)
     sanitize && sanitize!(var)
     return var
 end
 
-function general_get_data(args...; drop_nan = false, sanitize = true, kw...)
+function general_get_data(args...; sanitize = true, kw...)
     v = speasy_get_data(_compat.(args)...; kw...)
     pyisnone(v) && return nothing
-    drop_nan && (v = apply_recursively(v, py_drop_nan, is_pylist))
     vars = apply_recursively(v, x -> pyisnone(x) ? nothing : SpeasyVariable(x), is_pylist)
     sanitize && apply_recursively(vars, sanitize!, x -> !isnothing(x) && !(eltype(x) <: Number))
     return vars

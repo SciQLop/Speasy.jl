@@ -40,8 +40,6 @@ const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
 const TimeRangeType = Union{NTuple{2}}
-const pyns = PythonCall.pynew()
-const np = PythonCall.pynew()
 const VERSION = Ref{String}()
 
 function __init__()
@@ -49,8 +47,6 @@ function __init__()
     PythonCall.pycopy!(speasy, pyimport("speasy"))
     PythonCall.pycopy!(speasy_get_data, pyimport("speasy").get_data)
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
-    PythonCall.pycopy!(np, pyimport("numpy"))
-    PythonCall.pycopy!(pyns, pyimport("numpy").timedelta64(1, "ns"))
     return VERSION[] = pyconvert(String, speasy."__version__")
 end
 

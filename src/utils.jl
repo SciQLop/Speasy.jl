@@ -1,5 +1,3 @@
-py_drop_nan(x) = x[np.isfinite(x).reshape(-1)]
-
 """
     pyconvert_time(times)
 
