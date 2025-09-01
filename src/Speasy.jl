@@ -27,7 +27,7 @@ export speasyplot, speasyplot!
 export SpeasyProduct
 export @spz_str
 export init_amda, init_cdaweb, init_csa, init_sscweb, init_archive, init_providers
-export list_parameters, list_datasets
+export list_parameters, find_datasets
 
 include("utils.jl")
 include("types.jl")

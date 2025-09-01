@@ -144,30 +144,30 @@ end
     @test "imf" in amda_params
 
     # Test listing parameters for a specific dataset
-    cda_omni_params = list_parameters(:cda, "OMNI_HRO_1MIN")
+    cda_omni_params = list_parameters(:cda, "OMNI_HRO_1MIN"; verbose=true)
     @test cda_omni_params isa Vector{String}
     @test length(cda_omni_params) > 0
 end
 
-@testitem "list_datasets" begin
+@testitem "find_datasets" begin
     # Test listing all datasets for a provider
-    amda_datasets = list_datasets(:amda)
+    amda_datasets = find_datasets(:amda)
     @test amda_datasets isa AbstractVector{String}
     @test length(amda_datasets) > 0
 
     # Test listing datasets with filter
-    cda_datasets = list_datasets(:cda)
+    cda_datasets = find_datasets(:cda)
     @test cda_datasets isa AbstractVector{String}
     @test length(cda_datasets) > 0
 
     # Test filtering by substring
-    omni_datasets = list_datasets(:cda, :OMNI)
+    omni_datasets = find_datasets(:cda, :OMNI)
     @test omni_datasets isa AbstractVector{String}
     @test all(ds -> occursin("OMNI", ds), omni_datasets)
     @test length(omni_datasets) <= length(cda_datasets)
 
     # Test filtering with multiple substrings
-    specific_datasets = list_datasets(:cda, :OMNI, :HRO)
+    specific_datasets = find_datasets(:cda, :OMNI, :HRO)
     @test specific_datasets isa AbstractVector{String}
     @test all(ds -> occursin("OMNI", ds) && occursin("HRO", ds), specific_datasets)
     @test length(specific_datasets) <= length(omni_datasets)

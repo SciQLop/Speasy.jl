@@ -16,8 +16,12 @@ imf_data = get_data("amda/imf", "2016-6-2", "2016-6-3")
 ## Find the available datasets and parameters
 
 ```@docs; canonical=false
-list_datasets
+find_datasets
 list_parameters
+```
+
+```@example tutorial
+list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN"; verbose=true)
 ```
 
 ## Using Dynamic Inventory
