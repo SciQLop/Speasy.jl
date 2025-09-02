@@ -8,7 +8,7 @@ Much faster than `pyconvert(Array, times)`
 function pyconvert_time(times)
     len = length(times)
     len == 0 && return UnixTime[]
-    py_ns = PyArray(times.view("i8"), copy = false)
+    py_ns = PyArray{Int64, 1, true, true, Int64}(times."view"("i8"), copy = false)
     return reinterpret(UnixTime, py_ns)
 end
 
