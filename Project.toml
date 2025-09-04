@@ -1,7 +1,7 @@
 name = "Speasy"
 uuid = "09b745ad-c67d-442f-94a6-c7f4d1e4d861"
-version = "0.4.6"
 authors = ["Beforerr <zzj956959688@gmail.com> and contributors"]
+version = "0.4.6"
 
 [deps]
 Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
@@ -29,7 +29,7 @@ Makie = "0.21, 0.22, 0.23, 0.24"
 NetworkOptions = "1"
 PythonCall = "0.9.23"
 SpaceDataModel = "0.1.6, 0.2"
-TimeSeries = "0.24.2"
+TimeSeries = "0.24.2, 0.25"
 TimeseriesTools = "0.6, 0.7"
 Unitful = "1.22"
 UnixTimes = "1.7"
