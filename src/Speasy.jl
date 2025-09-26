@@ -17,11 +17,10 @@ import Base: getproperty, summarysize, similar
 import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta, name
-using NetworkOptions
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
-export times, units, name
+export times, units, name, meta
 export sanitize!, replace_fillval_by_nan!, replace_invalid!
 export speasyplot, speasyplot!
 export SpeasyProduct

@@ -19,12 +19,14 @@ function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
 end
 
 function SpeasyVariable(py::Py)
-    data = PyArray(py."values", copy = false)
-    dims = (pyconvert_time(py."time"), 1:size(data, 2))
-    metadata = pyconvert(Dict{Any, Any}, py."meta")
-    @update! metadata "DEPEND_1" VariableAxis(py."axes"[1])
-    @update! metadata "DEPEND_2" VariableAxis(py."axes"[2])
-    return SpeasyVariable(py, data, dims, pyconvert(String, py."name"), metadata)
+    data = PyArray(@py(py.values), copy = false)
+    axes = @py py.axes
+    len = length(axes)
+    dims = ntuple(ndims(data)) do i
+        i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, i))
+    end
+    metadata = pyconvert(Dict{Union{String, Symbol}, Any}, @py(py.meta))
+    return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
 
 """
@@ -34,22 +36,27 @@ https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L234
 @concrete struct VariableAxis{T, N, A <: AbstractArray{T, N}} <: AbstractSupportDataContainer{T, N}
     py::Py
     data::A
-    name
-    metadata
 end
 
 function VariableAxis(py::Py)
-    data = PyArray(py."values", copy = false)
-    return VariableAxis(py, data, pyconvert(String, py."name"), pyconvert(Any, py."meta"))
+    data = py2jlvalues(py)
+    return VariableAxis(py, data)
 end
+
+py_name(py::Py) = pyconvert(String, @py py.name)
+
+SpaceDataModel.meta(var::AbstractSupportDataContainer) = pyconvert(PyDict{Any, Any}, var.py."meta")
+SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
 SpaceDataModel.times(var::SpeasyVariable) = var.dims[1]
 function SpaceDataModel.units(var::AbstractDataContainer)
-    u = var.py."unit"
+    py = var.py
+    u = @py py.unit
     return pyisnone(u) ? "" : pyconvert(Any, u)
 end
 
 function Base.getproperty(var::T, s::Symbol) where {T <: AbstractDataContainer}
-    return s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
+    s in fieldnames(T) && return getfield(var, s)
+    return getproperty(var.py, s)
 end

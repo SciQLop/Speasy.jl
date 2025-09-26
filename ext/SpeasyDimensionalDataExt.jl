@@ -15,7 +15,7 @@ function DimensionalData.dims(v::SpeasyVariable)
 end
 
 """
-    DimArray(v::SpeasyVariable; add_unit=false, standardize=false)
+    DimArray(v::SpeasyVariable; standardize=false)
 
 Convert a `SpeasyVariable` to a `DimArray`.
 By default, it does not add units.
@@ -23,8 +23,8 @@ By default, it does not add units.
 Set `standardize=true` to standardize the variable:
 - make scalar variables 1D (https://github.com/SciQLop/speasy/issues/149)
 """
-function DimArray(v::SpeasyVariable; add_unit = false, standardize = false)
-    values = add_unit ? parent(v) .* Unitful.unit(v) : parent(v)
+function DimArray(v::SpeasyVariable; standardize = false)
+    values = v.data
     name = v.name
     metadata = v.metadata
     return if standardize && is_scalar(v)
