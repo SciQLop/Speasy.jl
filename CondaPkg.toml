@@ -2,4 +2,4 @@
 sqlite = "!=3.49.1" # https://github.com/SciQLop/speasy/issues/197  https://github.com/conda-forge/sqlite-feedstock/issues/130
 
 [pip.deps]
-speasy = "@git+https://github.com/Beforerr/speasy@push-oxmnlluwvkmo"
+speasy = "@git+https://github.com/SciQLop/speasy"

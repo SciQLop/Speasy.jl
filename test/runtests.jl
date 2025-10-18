@@ -40,9 +40,12 @@ end
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
+    @test occursin("Units: ns", string(spz_var.dims[1]))
+    @test meta(spz_var.dims[1])["FIELDNAM"] == "Time"
     @test eltype(times(spz_var)) <: AbstractDateTime
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
+
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
     names = (:amda_imf, :amda_dst)
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
@@ -65,7 +68,7 @@ end
 
     # Test similar method for VariableAxis
     spz_var = get_data("cda/SOHO_ERNE-HED_L2-1MIN/AH", "20211028T06", "20211028T06:10")
-    axis = spz_var.metadata["DEPEND_1"]
+    axis = spz_var.dims[1]
     @test axis isa Speasy.VariableAxis
     similar_axis = similar(axis, Float64, (10,))
     @test similar_axis isa Speasy.VariableAxis
@@ -84,13 +87,13 @@ end
         [
             mms1_products.FGM.MMS1_FGM_SRVY_L2.mms1_fgm_b_gsm_srvy_l2,
             mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_tempperp_fast,
-            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_energyspectr_omni_fast
+            mms1_products.DIS.MMS1_FPI_FAST_L2_DIS_MOMS.mms1_dis_energyspectr_omni_fast,
         ],
         "2017-01-01T02:00:00",
         "2017-01-01T02:00:05"
     )
     @test data isa Vector{<:SpeasyVariable}
-    @test data[3]["DEPEND_1"] isa Speasy.VariableAxis
+    @test data[3].dims[1] isa Speasy.VariableAxis
 
 
     # More complex requests
@@ -144,7 +147,7 @@ end
     @test "imf" in amda_params
 
     # Test listing parameters for a specific dataset
-    cda_omni_params = list_parameters(:cda, "OMNI_HRO_1MIN"; verbose=true)
+    cda_omni_params = list_parameters(:cda, "OMNI_HRO_1MIN"; verbose = true)
     @test cda_omni_params isa Vector{String}
     @test length(cda_omni_params) > 0
 end

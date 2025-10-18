@@ -17,11 +17,10 @@ import Base: getproperty, summarysize, similar
 import PythonCall: PyArray, Py
 using SpaceDataModel
 import SpaceDataModel: times, units, meta, name
-using NetworkOptions
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
-export times, units, name
+export times, units, name, meta
 export sanitize!, replace_fillval_by_nan!, replace_invalid!
 export speasyplot, speasyplot!
 export SpeasyProduct
@@ -36,7 +35,6 @@ include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
 include("listing.jl")
-include("error.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
@@ -46,10 +44,6 @@ const VERSION = Ref{String}()
 
 function __init__()
     ccall(:jl_generating_output, Cint, ()) == 1 && return nothing
-
-    cafile = pyimport("ssl").get_default_verify_paths().cafile
-    pyisnone(cafile) && fix_ssl_cert!()
-
     PythonCall.pycopy!(speasy, pyimport("speasy"))
     PythonCall.pycopy!(speasy_get_data, pyimport("speasy").get_data)
     PythonCall.pycopy!(request_dispatch, pyimport("speasy.core.requests_scheduling.request_dispatch"))
@@ -97,6 +91,16 @@ end
 for provider in (:amda, :cdaweb, :csa, :sscweb, :archive, :providers)
     f = Symbol(:init_, provider)
     @eval $f() = request_dispatch.$f(ignore_disabled_status = true)
+end
+
+# https://speasy.readthedocs.io/en/stable/_modules/speasy/core/direct_archive_downloader/direct_archive_downloader.html#RegularSplitDirectDownload.get_product
+function get_product(url_pattern, variable, start_time, stop_time; split_rule = "regular", kwargs...)
+    start_time = string(start_time) # Python side assume datetime-like (see `make_utc_datetime` in https://github.com/SciQLop/speasy/blob/main/speasy/core/__init__.py#L145)
+    stop_time = string(stop_time)
+    spz_get_product = @pyconst pyimport("speasy.core.direct_archive_downloader").get_product
+    v = spz_get_product(; url_pattern, variable, start_time, stop_time, split_rule, kwargs...)
+    pyisnone(v) && return nothing
+    return SpeasyVariable(v)
 end
 
 function speasyplot end

@@ -6,6 +6,8 @@ using Unitful
 import Speasy: get_data, getdimarray
 import DimensionalData: DimArray, DimStack, dims
 
+is_scalar(v) = ndims(v) == 2 && size(v, 2) == 1
+
 function DimensionalData.dims(v::SpeasyVariable)
     dim1 = Ti(v.dims[1])
     dim2 = Y(v.dims[2])
@@ -13,14 +15,23 @@ function DimensionalData.dims(v::SpeasyVariable)
 end
 
 """
-    DimArray(v::SpeasyVariable; add_unit=false)
+    DimArray(v::SpeasyVariable; standardize=false)
 
 Convert a `SpeasyVariable` to a `DimArray`.
 By default, it does not add units.
+
+Set `standardize=true` to standardize the variable:
+- make scalar variables 1D (https://github.com/SciQLop/speasy/issues/149)
 """
-function DimArray(v::SpeasyVariable; add_unit = false)
-    values = add_unit ? parent(v) .* Unitful.unit(v) : parent(v)
-    return DimArray(values, dims(v); name = v.name, metadata = v.metadata)
+function DimArray(v::SpeasyVariable; standardize = false)
+    values = v.data
+    name = v.name
+    metadata = v.metadata
+    return if standardize && is_scalar(v)
+        DimArray(vec(values), dims(v)[1]; name, metadata)
+    else
+        DimArray(values, dims(v); name, metadata)
+    end 
 end
 
 function DimArray(v::AbstractSupportDataContainer; unit = unit(v))

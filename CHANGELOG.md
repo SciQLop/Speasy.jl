@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Breaking**: drop `add_unit=false` argument when converting to `DimArray`. Use `DimArray(v) .* unit(v)` instead.
+
 ## [0.4.0] - 2025-08-08
 
 ### Changed

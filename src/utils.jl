@@ -8,8 +8,25 @@ Much faster than `pyconvert(Array, times)`
 function pyconvert_time(times)
     len = length(times)
     len == 0 && return UnixTime[]
-    py_ns = PyArray(times.view("i8"), copy = false)
+    py_ns = PyArray{Int64, 1, true, true, Int64}(@py times.view("i8"); copy = false)
     return reinterpret(UnixTime, py_ns)
+end
+
+function py2jlvalues(var; copy = false)
+    py = @py var.values
+    # Check if the array has byte string dtype (e.g., '|S22')
+    dtype = @py py.dtype
+    dtype_num = pyconvert(Int, @py dtype.num)
+    dtype_num == 21 && return pyconvert_time(py) # datetime64[ns]
+    valid_py = if dtype_num == 18 # string dtype 'S'
+        @py py.astype("U") # Convert byte strings to Unicode strings in Python first
+    elseif dtype_num == 20 # Structured dtype like [('value', '<i8')]
+        view_dtype = field_dtype(dtype)
+        @py py.view(view_dtype)
+    else
+        py
+    end
+    return PyArray(valid_py; copy)
 end
 
 is_pylist(x) = pyisinstance(x, pybuiltins.list)
