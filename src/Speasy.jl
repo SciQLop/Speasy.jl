@@ -39,7 +39,6 @@ include("listing.jl")
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
 const request_dispatch = PythonCall.pynew()
-const TimeRangeType = Union{NTuple{2}}
 const VERSION = Ref{String}()
 
 function __init__()

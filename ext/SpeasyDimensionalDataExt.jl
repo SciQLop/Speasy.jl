@@ -10,7 +10,8 @@ is_scalar(v) = ndims(v) == 2 && size(v, 2) == 1
 
 function DimensionalData.dims(v::SpeasyVariable)
     dim1 = Ti(v.dims[1])
-    dim2 = Y(v.dims[2])
+    d2 = v.dims[2]
+    dim2 = Y(ndims(d2) == 1 ? d2 : 1:size(d2, 2))
     return (dim1, dim2)
 end
 
@@ -31,7 +32,7 @@ function DimArray(v::SpeasyVariable; standardize = false)
         DimArray(vec(values), dims(v)[1]; name, metadata)
     else
         DimArray(values, dims(v); name, metadata)
-    end 
+    end
 end
 
 function DimArray(v::AbstractSupportDataContainer; unit = unit(v))
