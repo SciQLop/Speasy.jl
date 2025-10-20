@@ -82,9 +82,70 @@ end
 If `key` exists in `dict`, assign `dict[key] = value`.
 """
 macro update!(dict, key, value)
-    quote
+    return quote
         if haskey($(esc(dict)), $(esc(key)))
             $(esc(dict))[$(esc(key))] = $(esc(value))
         end
     end
+end
+
+"""
+    OverlayDict{K,V}
+
+A dictionary that overlays a mutable Dict on top of an immutable PyDict.
+Key lookups first check the overlay, then fall back to the base PyDict.
+All modifications only affect the overlay, leaving the base unchanged.
+
+# Example
+```julia
+base = pydict(Dict("a" => 1, "b" => 2))
+d = OverlayDict{String,Int}(base)
+d["c"] = 3  # only modifies overlay
+d["a"]      # returns 1 from base
+d["c"]      # returns 3 from overlay
+```
+"""
+struct OverlayDict{K, V} <: AbstractDict{K, V}
+    base::Py
+    overlay::Dict{K, V}
+end
+
+OverlayDict{K, V}(base::Py) where {K, V} = OverlayDict{K, V}(base, Dict{K, V}())
+
+function Base.getindex(d::OverlayDict{K, V}, key) where {K, V}
+    return get(d.overlay, key) do
+        pyconvert(V, d.base[key])
+    end
+end
+
+function Base.get(d::OverlayDict{K, V}, key, default) where {K, V}
+    return get(d.overlay, key) do
+        py = d.base
+        haskey(py, key) ? pyconvert(V, py[key]) : default
+    end
+end
+
+Base.setindex!(d::OverlayDict, value, key) = setindex!(d.overlay, value, key)
+Base.haskey(d::OverlayDict, key) = haskey(d.overlay, key) || haskey(d.base, key)
+
+function Base.keys(d::OverlayDict{K}) where {K}
+    py = d.base
+    return union(keys(d.overlay), pyconvert(Set{K}, @py py.keys()))
+end
+
+Base.length(d::OverlayDict) = length(keys(d))
+
+function Base.iterate(d::OverlayDict{K, V}) where {K, V}
+    ks = keys(d)
+    iter_state = iterate(ks)
+    isnothing(iter_state) && return nothing
+    key, state = iter_state
+    return (key => d[key], (ks, state))
+end
+
+function Base.iterate(d::OverlayDict{K, V}, (keys, state)) where {K, V}
+    iter_state = iterate(keys, state)
+    isnothing(iter_state) && return nothing
+    key, new_state = iter_state
+    return (key => d[key], (keys, new_state))
 end

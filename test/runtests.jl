@@ -183,3 +183,40 @@ end
     @test haskey(data, :flow_speed)
     @test haskey(data, :Proton_Flux)
 end
+
+@testitem "OverlayDict" begin
+    using Speasy.PythonCall
+    using Speasy: OverlayDict
+
+    # Create a base PyDict
+    base = pydict(Dict("a" => 1, "b" => 2))
+    d = OverlayDict{String, Int}(base)
+
+    # Test reading from base
+    @test d["a"] == 1
+    # Test writing to overlay
+    d["c"] = 3
+    @test d["c"] == 3
+
+    # Test overriding base value
+    d["a"] = 10
+    @test d["a"] == 10
+    @test pyconvert(Int, base["a"]) == 1  # base unchanged
+
+    # Test haskey
+    @test haskey(d, "a")
+    @test !haskey(d, "d")
+
+    # Test get with default
+    @test get(d, "a", 0) == 10
+    @test get(d, "d", 0) == 0
+
+    # Test keys and length
+    @test length(d) == 3
+
+    # Test iteration
+    collected = collect(d)
+    @test length(collected) == 3
+    @test ("a" => 10) in collected
+    @test ("c" => 3) in collected
+end

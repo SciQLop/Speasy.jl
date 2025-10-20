@@ -25,7 +25,7 @@ function SpeasyVariable(py::Py)
     dims = ntuple(ndims(data)) do i
         i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, i))
     end
-    metadata = pyconvert(Dict{Union{String, Symbol}, Any}, @py(py.meta))
+    metadata = OverlayDict{Union{String, Symbol}, Any}(@py(py.meta))
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
 
