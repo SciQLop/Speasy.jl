@@ -31,7 +31,7 @@ function replace_fillval_by_nan!(var; verbose = false)
     return var
 end
 
-function replace_invalid!(A, vmins, vmaxs)
+function replace_invalid!(A::AbstractMatrix, vmins, vmaxs)
     T = eltype(A)
     for i in axes(A, 2)
         vmin = get(vmins, i, vmins[1])
@@ -40,6 +40,15 @@ function replace_invalid!(A, vmins, vmaxs)
         @. vc = ifelse((vc < vmin) | (vc > vmax), T(NaN), vc)
     end
     return A
+end
+
+function replace_invalid!(A::AbstractArray{T}, valid_mins, valid_maxs) where {T}
+    isnothing(valid_mins) && return A
+    isnothing(valid_maxs) && return A
+    vmin = T(only(valid_mins))
+    vmax = T(only(valid_maxs))
+    nan = T(NaN)
+    return @. A = ifelse((A < vmin) | (A > vmax), nan, A)
 end
 
 """Replaces invalid values by NaN for `var` with float type elements."""

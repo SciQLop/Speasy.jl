@@ -51,6 +51,12 @@ end
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
 end
 
+@testitem "N-Dimensional data" begin
+    tint_r = ["2015-10-30T05:14:44", "2015-10-30T05:17:44"]
+    vdf_e_spz = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint_r...)
+    @test vdf_e_spz isa SpeasyVariable
+end
+
 @testitem "Array Interface" setup = [DataShare] begin
     using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", tmin, tmax)
