@@ -1,10 +1,10 @@
 get_provider(_) = nothing
 get_provider(s::String) = first(eachsplit(s, "/"))
 
-function general_get_data(prod::String, t0, t1; sanitize = true, kw...)
+function general_get_data(prod::String, t0, t1; sanitize = true, transpose = false, kw...)
     v = speasy_get_data(_compat(prod), _compat(t0), _compat(t1); kw...)
     pyisnone(v) && return nothing
-    var = SpeasyVariable(v)
+    var = SpeasyVariable(v; transpose)
     sanitize && sanitize!(var)
     return var
 end
@@ -28,7 +28,7 @@ By default `gse` is used.
 
 Reference: [Speasy Documentation](https://speasy.readthedocs.io/en/latest/user/sscweb/sscweb.html)
 """
-function ssc_get_data(args...)
+function ssc_get_data(args...; transpose = false)
     v = @pyconst(speasy.ssc.get_data)(_compat.(args)...)
-    return pyisnone(v) ? nothing : SpeasyVariable(v)
+    return pyisnone(v) ? nothing : SpeasyVariable(v; transpose)
 end

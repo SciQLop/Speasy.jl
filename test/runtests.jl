@@ -46,6 +46,12 @@ end
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
 
+    # Transpose
+    spz_var_t = get_data("amda/imf", tmin, tmax; transpose = true)
+    @test meta(spz_var_t.dims[2])["FIELDNAM"] == "Time"
+    @test eltype(times(spz_var_t)) <: AbstractDateTime
+    @test spz_var_t' == spz_var
+
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
     names = (:amda_imf, :amda_dst)
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
