@@ -18,13 +18,17 @@ function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
     return @set A.data = similar(A.data, S, dims)
 end
 
-function SpeasyVariable(py::Py)
-    data = PyArray(@py(py.values), copy = false)
+function SpeasyVariable(py::Py; transpose = false)
+    values = transpose ? @py(py.values.T) : @py(py.values)
+    data = PyArray(values, copy = false)
     axes = @py py.axes
     len = length(axes)
-    dims = ntuple(ndims(data)) do i
-        i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, i))
+    N = ndims(data)
+    dims = ntuple(N) do i
+        si = transpose ? N - i + 1 : i
+        i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, si))
     end
+    dims = transpose ? reverse(dims) : dims
     metadata = OverlayDict{Union{String, Symbol}, Any}(@py(py.meta))
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
@@ -49,7 +53,10 @@ SpaceDataModel.meta(var::AbstractSupportDataContainer) = pyconvert(PyDict{Any, A
 SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
-SpaceDataModel.times(var::SpeasyVariable) = var.dims[1]
+function SpaceDataModel.times(var::SpeasyVariable)
+    d1 = var.dims[1]
+    return eltype(d1) <: UnixTime ? d1 : var.dims[ndims(var)]
+end
 function SpaceDataModel.units(var::AbstractDataContainer)
     py = var.py
     u = @py py.unit

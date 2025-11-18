@@ -46,9 +46,21 @@ end
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
 
+    # Transpose
+    spz_var_t = get_data("amda/imf", tmin, tmax; transpose = true)
+    @test meta(spz_var_t.dims[2])["FIELDNAM"] == "Time"
+    @test eltype(times(spz_var_t)) <: AbstractDateTime
+    @test spz_var_t' == spz_var
+
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
     names = (:amda_imf, :amda_dst)
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
+end
+
+@testitem "N-Dimensional data" begin
+    tint_r = ["2015-10-30T05:14:44", "2015-10-30T05:17:44"]
+    vdf_e_spz = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint_r...)
+    @test vdf_e_spz isa SpeasyVariable
 end
 
 @testitem "Array Interface" setup = [DataShare] begin
