@@ -37,12 +37,15 @@ end
 @testitem "Speasy.jl" setup = [DataShare] begin
     using Dates: AbstractDateTime
     using Unitful
+    using Speasy.SpaceDataModel: tdimnum
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
     @test occursin("Units: ns", string(spz_var.dims[1]))
     @test meta(spz_var.dims[1])["FIELDNAM"] == "Time"
     @test eltype(times(spz_var)) <: AbstractDateTime
+    @test tdimnum(spz_var) == 1
+    @test tdimnum(get_data("amda/imf", tmin, tmax; transpose = true)) == 2
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
 
