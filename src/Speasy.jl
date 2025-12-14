@@ -16,7 +16,8 @@ using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: PyArray, Py
 using SpaceDataModel
-import SpaceDataModel: times, units, meta, name
+import SpaceDataModel: units, meta, name, tdimnum
+import SpaceDataModel: times
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data

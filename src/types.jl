@@ -33,6 +33,11 @@ function SpeasyVariable(py::Py; transpose = false)
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
 
+function SpaceDataModel.tdimnum(var::SpeasyVariable)
+    N = ndims(var)
+    return eltype(var.dims[N]) <: UnixTime ? N : 1
+end
+
 """
 A wrapper of `speasy.VariableAxis`.
 https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L234
@@ -53,10 +58,6 @@ SpaceDataModel.meta(var::AbstractSupportDataContainer) = pyconvert(PyDict{Any, A
 SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
-function SpaceDataModel.times(var::SpeasyVariable)
-    d1 = var.dims[1]
-    return eltype(d1) <: UnixTime ? d1 : var.dims[ndims(var)]
-end
 function SpaceDataModel.units(var::AbstractDataContainer)
     py = var.py
     u = @py py.unit
@@ -64,6 +65,5 @@ function SpaceDataModel.units(var::AbstractDataContainer)
 end
 
 function Base.getproperty(var::T, s::Symbol) where {T <: AbstractDataContainer}
-    s in fieldnames(T) && return getfield(var, s)
-    return getproperty(var.py, s)
+    return s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
 end
