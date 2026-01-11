@@ -3,7 +3,7 @@ using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
 using Unitful
-import Speasy: get_data, getdimarray
+import Speasy: get_data
 import DimensionalData: DimArray, DimStack, dims
 
 is_scalar(v) = ndims(v) == 2 && size(v, 2) == 1
@@ -52,8 +52,4 @@ end
 
 DimStack(vs::AbstractArray{SpeasyVariable}) = DimStack(DimArray.(vs)...)
 
-function Speasy.getdimarray(args...; add_unit = true, kwargs...)
-    v = get_data(args...; kwargs...)
-    return isnothing(v) ? nothing : DimArray(v; add_unit)
-end
 end

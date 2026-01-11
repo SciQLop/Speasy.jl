@@ -9,12 +9,13 @@ module Speasy
 
 using Accessors: @set
 using PythonCall
+using PythonCall: PyArray
 using PythonCall.Core: pyisnone
 using UnixTimes: UnixTime
 using Unitful
 using ConcreteStructs
 import Base: getproperty, summarysize, similar
-import PythonCall: PyArray, Py
+import PythonCall: Py
 using SpaceDataModel
 import SpaceDataModel: units, meta, name, tdimnum
 import SpaceDataModel: times
@@ -105,6 +106,4 @@ end
 
 function speasyplot end
 function speasyplot! end
-
-function getdimarray end
 end

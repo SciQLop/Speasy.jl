@@ -41,22 +41,6 @@ function apply_recursively(data, apply_fn, check_fn)
     end
 end
 
-@enum Vartype begin
-    data
-    support_data
-    metadata
-end
-
-"Convert a string to Vartype"
-function vartype(s::String)
-    s == "data" && return data
-    s == "support_data" && return support_data
-    s == "metadata" && return metadata
-    throw(ArgumentError("Invalid Vartype: $s"))
-end
-
-vartype(var) = vartype(var.meta["VAR_TYPE"])
-
 _key_names(p) = nothing
 _key_names(p::AbstractDataSet) = keys(parameters(p))
 
@@ -74,19 +58,6 @@ macro py2jl(expr)
     obj = expr.args[1]
     field = expr.args[2]
     return :(py2jl_getproperty($(esc(obj)), $(field)))
-end
-
-"""
-    @update! dict key value
-
-If `key` exists in `dict`, assign `dict[key] = value`.
-"""
-macro update!(dict, key, value)
-    return quote
-        if haskey($(esc(dict)), $(esc(key)))
-            $(esc(dict))[$(esc(key))] = $(esc(value))
-        end
-    end
 end
 
 """
