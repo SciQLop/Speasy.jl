@@ -140,7 +140,7 @@ end
     @test DimArray(spz_var2) isa DimArray
 end
 
-@testitem "TimeSeriesExt.jl" tags = [:skipci] setup = [DataShare] begin
+@testitem "TimeSeriesExt.jl" setup = [DataShare] begin
     using TimeSeries
     spz_var = get_data("amda/imf", tmin, tmax)
     @test TimeArray(spz_var) isa TimeArray
