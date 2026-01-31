@@ -2,7 +2,6 @@ module SpeasyDimensionalDataExt
 using DimensionalData
 using Speasy
 using Speasy: AbstractSupportDataContainer
-using Unitful
 import Speasy: get_data
 import DimensionalData: DimArray, DimStack, dims
 
@@ -35,10 +34,10 @@ function DimArray(v::SpeasyVariable; standardize = false)
     end
 end
 
-function DimArray(v::AbstractSupportDataContainer; unit = unit(v))
+function DimArray(v::AbstractSupportDataContainer)
     data = parent(v)
     dims = ndims(data) == 1 ? (Ti(),) : (Ti(), Y())
-    return DimArray(data * unit, dims; name = v.name, metadata = v.metadata)
+    return DimArray(data, dims; name = v.name, metadata = v.metadata)
 end
 
 function DimArray(vs::AbstractArray{SpeasyVariable})

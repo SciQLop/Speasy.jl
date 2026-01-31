@@ -12,7 +12,6 @@ using PythonCall
 using PythonCall: PyArray
 using PythonCall.Core: pyisnone
 using UnixTimes: UnixTime
-using Unitful
 using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py

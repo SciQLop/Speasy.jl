@@ -88,23 +88,3 @@ isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
 # Design note: time series of scalar type also have `N=1`
 isscalar(var) = false
 isscalar(var::AbstractMatrix) = size(var, 2) == 1
-
-function Unitful.unit(var::AbstractDataContainer)
-    u_str = units(var)
-    try
-        return uparse(u_str)
-    catch
-    end
-    try # replace space by *
-        u_str = replace(u_str, " " => "*", "{" => "", "}" => "", "#" => "1", "sec" => "s", "cm3" => "cm^3", "cc" => "cm^3")
-        return uparse(u_str)
-    catch
-    end
-    try # split str by space
-        return uparse(split(u_str, " ")[1])
-    catch
-    end
-
-    @info "Cannot parse $(name(var)) unit $u_str"
-    return 1
-end
