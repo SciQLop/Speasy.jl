@@ -36,6 +36,7 @@ include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
 include("listing.jl")
+include("array.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
