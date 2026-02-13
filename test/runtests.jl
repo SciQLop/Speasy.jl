@@ -89,6 +89,12 @@ end
     @test similar_axis isa Speasy.VariableAxis
     @test eltype(similar_axis) == Float64
     @test size(similar_axis) == (10,)
+
+    @testset "view" begin
+        view_var = selectdim(spz_var, 2, [1, 3, 5])
+        @test size(view_var) == (10, 3)
+        @test size(view_var.dims[2]) == (3,)
+    end
 end
 
 @testitem "Dynamic inventory" setup = [DataShare] begin
