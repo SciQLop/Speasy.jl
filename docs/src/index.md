@@ -1,5 +1,8 @@
 # Speasy.jl
 
+[![DOI](https://zenodo.org/badge/922473963.svg)](https://doi.org/10.5281/zenodo.15171895)
+[![version](https://juliahub.com/docs/General/Speasy/stable/version.svg)](https://juliahub.com/ui/Packages/General/Speasy)
+
 `Speasy.jl` provides access to space physics data from various web services including:
 
 - Automated Multi-Dataset Analysis (AMDA)

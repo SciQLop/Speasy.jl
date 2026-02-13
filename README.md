@@ -1,6 +1,7 @@
 # Speasy
 
-[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://SciQLop.github.io/Speasy.jl/dev/)
+[![DOI](https://zenodo.org/badge/922473963.svg)](https://doi.org/10.5281/zenodo.15171895)
+[![version](https://juliahub.com/docs/General/Speasy/stable/version.svg)](https://juliahub.com/ui/Packages/General/Speasy)
 
 [![Build Status](https://github.com/SciQLop/Speasy.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/SciQLop/Speasy.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
@@ -8,12 +9,9 @@
 
 A Julia wrapper around [Speasy](https://github.com/SciQLop/speasy), a Python package to deal with main Space Physics WebServices.
 
-## Installation
+**Installation**: at the Julia REPL, run `using Pkg; Pkg.add("Speasy")`
 
-```julia
-using Pkg
-Pkg.add("Speasy.jl")
-```
+**Documentation**: [![Dev](https://img.shields.io/badge/docs-dev-blue.svg?logo=julia)](https://SciQLop.github.io/Speasy.jl/dev/)
 
 ## Quick Start
 
