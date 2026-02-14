@@ -66,7 +66,8 @@ end
     @test vdf_e_spz isa SpeasyVariable
 end
 
-@testitem "Array Interface" setup = [DataShare] begin
+@testitem "Array and SpaceDataModel Interface" setup = [DataShare] begin
+    using SpaceDataModel: times
     using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", tmin, tmax)
     @info typeof(spz_var)
@@ -89,6 +90,9 @@ end
     @test similar_axis isa Speasy.VariableAxis
     @test eltype(similar_axis) == Float64
     @test size(similar_axis) == (10,)
+
+    @test times(spz_var) == spz_var.dims[1]
+    @test isnothing(times(spz_var.dims[2]))
 
     @testset "view" begin
         view_var = selectdim(spz_var, 2, [1, 3, 5])
