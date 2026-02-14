@@ -56,6 +56,7 @@ py_name(py::Py) = pyconvert(String, @py py.name)
 
 SpaceDataModel.meta(var::AbstractSupportDataContainer) = pyconvert(PyDict{Any, Any}, var.py."meta")
 SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
+SpaceDataModel.timedim(var::AbstractSupportDataContainer{T}) where T = T <: AbstractTime ? var : nothing
 
 PythonCall.Py(var::AbstractDataContainer) = var.py
 function SpaceDataModel.units(var::AbstractDataContainer)
