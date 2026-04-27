@@ -17,13 +17,8 @@ A Julia wrapper around [Speasy](https://github.com/SciQLop/speasy), a Python pac
 
 ```julia
 using Speasy
-const spz = speasy
 
 get_data("amda/imf", "2016-6-2", "2016-6-5")
-
-# Dynamic inventory
-amda_tree = spz.inventories.data_tree.amda
-get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-5") 
 ```
 
 > [!NOTE]
