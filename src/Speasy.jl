@@ -18,7 +18,7 @@ import Base: getproperty, summarysize, similar
 import PythonCall: Py
 using SpaceDataModel
 import SpaceDataModel: units, meta, name, tdimnum
-import SpaceDataModel: times
+import SpaceDataModel: times, OverlayDict
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
