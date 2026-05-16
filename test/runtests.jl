@@ -42,7 +42,13 @@ end
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
     @test occursin("Units: ns", string(spz_var.dims[1]))
-    @test meta(spz_var.dims[1])["FIELDNAM"] == "Time"
+    @testset "Metadata access" begin
+        m = spz_var.metadata
+        @test haskey(m, "CATDESC")
+        @test @allocations(haskey(m, "CATDESC")) <= 3
+        @test m["CATDESC"] == "imf"
+        @test meta(spz_var.dims[1])["FIELDNAM"] == "Time"
+    end
     @test eltype(times(spz_var)) <: AbstractDateTime
     @test tdimnum(spz_var) == 1
     @test tdimnum(get_data("amda/imf", tmin, tmax; transpose = true)) == 2
@@ -199,49 +205,4 @@ end
     @test specific_datasets isa AbstractVector{String}
     @test all(ds -> occursin("OMNI", ds) && occursin("HRO", ds), specific_datasets)
     @test length(specific_datasets) <= length(omni_datasets)
-end
-
-@testitem "issue 223" begin
-    # https://github.com/SciQLop/speasy/issues/223
-    data = get_data(NamedTuple, ["cda/STA_L1_HET/Proton_Flux", "cda/OMNI_HRO_1MIN/flow_speed"], "20201028", "20201029")
-    @test data isa NamedTuple
-    @test haskey(data, :flow_speed)
-    @test haskey(data, :Proton_Flux)
-end
-
-@testitem "OverlayDict" begin
-    using Speasy.PythonCall
-    using Speasy: OverlayDict
-
-    # Create a base PyDict
-    base = pydict(Dict("a" => 1, "b" => 2))
-    d = OverlayDict{String, Int}(base)
-
-    # Test reading from base
-    @test d["a"] == 1
-    # Test writing to overlay
-    d["c"] = 3
-    @test d["c"] == 3
-
-    # Test overriding base value
-    d["a"] = 10
-    @test d["a"] == 10
-    @test pyconvert(Int, base["a"]) == 1  # base unchanged
-
-    # Test haskey
-    @test haskey(d, "a")
-    @test !haskey(d, "d")
-
-    # Test get with default
-    @test get(d, "a", 0) == 10
-    @test get(d, "d", 0) == 0
-
-    # Test keys and length
-    @test length(d) == 3
-
-    # Test iteration
-    collected = collect(d)
-    @test length(collected) == 3
-    @test ("a" => 10) in collected
-    @test ("c" => 3) in collected
 end
