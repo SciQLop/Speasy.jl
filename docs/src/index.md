@@ -29,11 +29,6 @@ using Speasy
 
 # Get Interplanetary Magnetic Field data
 imf_data = get_data("amda/imf", "2016-6-2", "2016-6-5")
-
-# Use dynamic inventory
-const spz = speasy
-amda_tree = spz.inventories.data_tree.amda
-ace_data = get_data(amda_tree.Parameters.ACE.MFI.ace_imf_all.imf, "2016-6-2", "2016-6-5")
 ```
 
 !!! note "Loading Order"

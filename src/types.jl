@@ -29,9 +29,11 @@ function SpeasyVariable(py::Py; transpose = false)
         i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, si))
     end
     dims = transpose ? reverse(dims) : dims
-    metadata = OverlayDict{Union{String, Symbol}, Any}(@py(py.meta))
+    metadata = OverlayDict{Union{String, Symbol}, Any}(_pymeta(py))
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
+
+_pymeta(py::Py) = PyDict{String, Any}(@py py.meta)
 
 function SpaceDataModel.tdimnum(var::SpeasyVariable)
     N = ndims(var)
@@ -54,7 +56,7 @@ end
 
 py_name(py::Py) = pyconvert(String, @py py.name)
 
-SpaceDataModel.meta(var::AbstractSupportDataContainer) = pyconvert(PyDict{Any, Any}, var.py."meta")
+SpaceDataModel.meta(var::AbstractSupportDataContainer) = _pymeta(var.py)
 SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
 SpaceDataModel.timedim(var::AbstractSupportDataContainer{T}) where T = T <: AbstractTime ? var : nothing
 

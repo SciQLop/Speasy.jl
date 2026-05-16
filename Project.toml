@@ -1,6 +1,6 @@
 name = "Speasy"
 uuid = "09b745ad-c67d-442f-94a6-c7f4d1e4d861"
-version = "0.4.10"
+version = "0.4.11"
 authors = ["Beforerr <zzj956959688@gmail.com> and contributors"]
 
 [workspace]
@@ -28,11 +28,11 @@ SpeasyUnitfulExt = "Unitful"
 [compat]
 Accessors = "0.1"
 ConcreteStructs = "0.2.3"
-Dates = "1.11.0"
-DimensionalData = "0.29"
+Dates = "1"
+DimensionalData = "0.29, 0.30"
 Makie = "0.21, 0.22, 0.23, 0.24"
-PythonCall = "0.9.23"
-SpaceDataModel = "0.2.3"
+PythonCall = "0.9.23"s
+SpaceDataModel = "0.2.10"
 TimeSeries = "0.24, 0.25, 0.26"
 Unitful = "1.22"
 UnixTimes = "1.7"
