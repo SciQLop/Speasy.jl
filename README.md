@@ -1,21 +1,17 @@
 # Speasy
 
 [![DOI](https://zenodo.org/badge/922473963.svg)](https://doi.org/10.5281/zenodo.15171895)
-[![version](https://juliahub.com/docs/General/Speasy/stable/version.svg)](https://juliahub.com/ui/Packages/General/Speasy)
 
-[![Build Status](https://github.com/SciQLop/Speasy.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/SciQLop/Speasy.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![Coverage](https://codecov.io/gh/SciQLop/Speasy.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/SciQLop/Speasy.jl)
 
 A Julia wrapper around [Speasy](https://github.com/SciQLop/speasy), a Python package to deal with main Space Physics WebServices.
-
-**Installation**: at the Julia REPL, run `using Pkg; Pkg.add("Speasy")`
 
 **Documentation**: [![Dev](https://img.shields.io/badge/docs-dev-blue.svg?logo=julia)](https://SciQLop.github.io/Speasy.jl/dev/)
 
 ## Quick Start
 
 ```julia
+using Pkg; Pkg.add("Speasy")
 using Speasy
 
 get_data("amda/imf", "2016-6-2", "2016-6-5")

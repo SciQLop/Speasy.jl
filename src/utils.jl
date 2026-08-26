@@ -42,7 +42,6 @@ function apply_recursively(data, apply_fn, check_fn)
 end
 
 _key_names(p) = nothing
-_key_names(p::AbstractDataSet) = keys(parameters(p))
 
 _compat(arg) = string(arg)
 _compat(arg::Py) = arg

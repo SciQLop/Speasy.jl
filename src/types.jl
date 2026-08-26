@@ -56,7 +56,7 @@ end
 
 py_name(py::Py) = pyconvert(String, @py py.name)
 
-SpaceDataModel.meta(var::AbstractSupportDataContainer) = _pymeta(var.py)
+SpaceDataModel.getmeta(var::AbstractSupportDataContainer) = _pymeta(var.py)
 SpaceDataModel.name(var::AbstractSupportDataContainer) = py_name(var.py)
 SpaceDataModel.timedim(var::AbstractSupportDataContainer{T}) where T = T <: AbstractTime ? var : nothing
 
