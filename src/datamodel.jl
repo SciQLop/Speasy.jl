@@ -1,9 +1,18 @@
+# A dataset (`id` like `"cda/OMNI_HRO_1MIN"`). Speasy fetches per parameter, so there is no dataset-level `getdata`
+struct SpeasySource
+    id::String
+end
+
+SpaceDataModel.getdata(p::Product{SpeasySource}, args...; kw...) =
+    get_data("$(p.dataset.id)/$(p.variable)", args...; kw...)
+
 function SpeasyProduct(id; provider=:cda, kwargs...)
     if !contain_provider(id)
         @info "Provider not found in $id, using $provider"
         id = "$provider/$id"
     end
-    Product(id, get_data; name = id, kwargs...)
+    dsid, param = rsplit(String(id), "/"; limit=2)
+    return Product(SpeasySource(dsid), param; name=id, kwargs...)
 end
 
 """
