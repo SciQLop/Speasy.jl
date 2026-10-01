@@ -1,4 +1,5 @@
 [deps]
+netcdf4 = ">=0" # avoid building speasy's transitive PyPI package without HDF5 headers
 sqlite = "!=3.49.1" # https://github.com/SciQLop/speasy/issues/197  https://github.com/conda-forge/sqlite-feedstock/issues/130
 
 [pip.deps]

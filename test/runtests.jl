@@ -16,19 +16,23 @@ end
 
 @testitem "spz_str macro" begin
     # Test single parameter
-    using Speasy: Product
+    using Speasy: Product, SpeasySource
+    using SpaceDataModel: name
     product = spz"cda/OMNI_HRO_1MIN/flow_speed"
     @test product isa Product
-    @test product.data == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test product.dataset isa SpeasySource
+    @test product.dataset.id == "cda/OMNI_HRO_1MIN"
+    @test product.variable == "flow_speed"
+    @test name(product) == "cda/OMNI_HRO_1MIN/flow_speed"
     @test spz"OMNI_HRO_1MIN/flow_speed" isa Product
 
     # Test multiple parameters with spaces
     products_spaces = spz"cda/OMNI_HRO_1MIN/flow_speed, Bx_gse , By_gse"
     @test products_spaces isa Tuple
     @test length(products_spaces) == 3
-    @test products_spaces[1].data == "cda/OMNI_HRO_1MIN/flow_speed"
-    @test products_spaces[2].data == "cda/OMNI_HRO_1MIN/Bx_gse"
-    @test products_spaces[3].data == "cda/OMNI_HRO_1MIN/By_gse"
+    @test name(products_spaces[1]) == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test name(products_spaces[2]) == "cda/OMNI_HRO_1MIN/Bx_gse"
+    @test name(products_spaces[3]) == "cda/OMNI_HRO_1MIN/By_gse"
 
     # Test error case - invalid format
     @test_throws Exception eval(:(spz"invalid_format,param"))
@@ -37,7 +41,7 @@ end
 @testitem "Speasy.jl" setup = [DataShare] begin
     using Dates: AbstractDateTime
     using Unitful
-    using Speasy.SpaceDataModel: tdimnum
+    using Speasy.SpaceDataModel: getdata, getmeta, tdimnum
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
@@ -47,7 +51,7 @@ end
         @test haskey(m, "CATDESC")
         @test @allocations(haskey(m, "CATDESC")) <= 3
         @test m["CATDESC"] == "imf"
-        @test meta(spz_var.dims[1])["FIELDNAM"] == "Time"
+        @test getmeta(spz_var.dims[1])["FIELDNAM"] == "Time"
     end
     @test eltype(times(spz_var)) <: AbstractDateTime
     @test tdimnum(spz_var) == 1
@@ -57,11 +61,12 @@ end
 
     # Transpose
     spz_var_t = get_data("amda/imf", tmin, tmax; transpose = true)
-    @test meta(spz_var_t.dims[2])["FIELDNAM"] == "Time"
+    @test getmeta(spz_var_t.dims[2])["FIELDNAM"] == "Time"
     @test eltype(times(spz_var_t)) <: AbstractDateTime
     @test spz_var_t' == spz_var
 
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
+    @test getdata(spz"amda/imf", tmin, tmax) isa SpeasyVariable
     names = (:amda_imf, :amda_dst)
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
 end

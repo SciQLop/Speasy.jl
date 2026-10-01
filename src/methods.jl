@@ -8,9 +8,9 @@ end
 
 columns(x) = @py2jl x.columns
 fill_value(var) = @py2jl var.fill_value
-coord(var) = get(var, "COORDINATE_SYSTEM")
-valid_min(var) = get(var, "VALIDMIN", nothing)
-valid_max(var) = get(var, "VALIDMAX", nothing)
+coord(var) = getmeta(var, "COORDINATE_SYSTEM")
+valid_min(var) = getmeta(var, "VALIDMIN", nothing)
+valid_max(var) = getmeta(var, "VALIDMAX", nothing)
 
 # this makes `fill_value`, `vmins` and `vmaxs` of same type, which makes the code faster
 @inline vec_T(T, vs::AbstractVector) = Base.convert(Vector{T}, vs)
@@ -82,7 +82,7 @@ end
 
 isprovider(s) = Symbol(s) in (:amda, :cda, :csa, :ssc, :archive)
 contain_provider(s::String) = first(eachsplit(s, "/")) in ("amda", "cda", "csa", "ssc", "archive")
-isspectrogram(var) = get(var, "DISPLAY_TYPE") == "spectrogram"
+isspectrogram(var) = getmeta(var, "DISPLAY_TYPE") == "spectrogram"
 
 # https://github.com/SciQLop/speasy/discussions/156
 # Design note: time series of scalar type also have `N=1`

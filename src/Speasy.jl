@@ -17,12 +17,13 @@ using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py
 using SpaceDataModel
-import SpaceDataModel: units, meta, name, tdimnum
+using SpaceDataModel: Product
+import SpaceDataModel: units, getmeta, name, tdimnum
 import SpaceDataModel: times, OverlayDict
 
 export speasy, SpeasyVariable, VariableAxis
 export get_data
-export times, units, name, meta
+export times, units, name, getmeta
 export sanitize!, replace_fillval_by_nan!, replace_invalid!
 export speasyplot, speasyplot!
 export SpeasyProduct
@@ -33,7 +34,6 @@ export list_parameters, find_datasets
 include("utils.jl")
 include("types.jl")
 include("methods.jl")
-include("dataset.jl")
 include("datamodel.jl")
 include("providers.jl")
 include("listing.jl")
@@ -83,11 +83,6 @@ function get_data(::Type{<:NamedTuple}, p, args...; names = nothing, kwargs...)
         @something names _key_names(p)
     end
     return NamedTuple{Tuple(Symbol.(names))}(data)
-end
-
-function get_data(ds::AbstractDataSet, args...; provider = provider(ds), kwargs...)
-    pds = products(ds; provider)
-    return get_data(pds, args...; kwargs...)
 end
 
 for provider in (:amda, :cdaweb, :csa, :sscweb, :archive, :providers)
