@@ -7,9 +7,9 @@ Much faster than `pyconvert(Array, times)`
 """
 function pyconvert_time(times)
     len = length(times)
-    len == 0 && return UnixTime[]
+    len == 0 && return Timestamp{Nanosecond}[]
     py_ns = PyArray{Int64, 1, true, true, Int64}(@py times.view("i8"); copy = false)
-    return reinterpret(UnixTime, py_ns)
+    return reinterpret(Timestamp{Nanosecond}, py_ns)
 end
 
 function py2jlvalues(var; copy = false)
