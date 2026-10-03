@@ -37,7 +37,7 @@ _pymeta(py::Py) = PyDict{String, Any}(@py py.meta)
 
 function SpaceDataModel.tdimnum(var::SpeasyVariable)
     N = ndims(var)
-    return eltype(var.dims[N]) <: UnixTime ? N : 1
+    return eltype(var.dims[N]) <: AbstractDateTime ? N : 1
 end
 
 """

@@ -11,8 +11,9 @@ using Accessors: @set
 using PythonCall
 using PythonCall: PyArray
 using PythonCall.Core: pyisnone
-using UnixTimes: UnixTime
-using Dates: AbstractTime
+using Durations: Timestamp
+using Dates: Nanosecond
+using Dates: AbstractTime, AbstractDateTime
 using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py
