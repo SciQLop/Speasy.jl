@@ -5,16 +5,15 @@ function general_get_data(prod::String, t0, t1; sanitize = true, transpose = fal
     v = speasy_get_data(_compat(prod), _compat(t0), _compat(t1); kw...)
     pyisnone(v) && return nothing
     var = SpeasyVariable(v; transpose)
-    sanitize && sanitize!(var)
-    return var
+    return sanitize ? _sanitize(var) : var
 end
 
 function general_get_data(args...; sanitize = true, kw...)
     v = speasy_get_data(_compat.(args)...; kw...)
     pyisnone(v) && return nothing
     vars = apply_recursively(v, x -> pyisnone(x) ? nothing : SpeasyVariable(x), is_pylist)
-    sanitize && apply_recursively(vars, sanitize!, x -> !isnothing(x) && !(eltype(x) <: Number))
-    return vars
+    sanitize || return vars
+    return apply_recursively(vars, _sanitize, x -> !isnothing(x) && !(eltype(x) <: Number))
 end
 
 """

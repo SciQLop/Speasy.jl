@@ -16,14 +16,6 @@ SpeasyVariable
 VariableAxis
 ```
 
-## Data Access and Processing
-
-```@docs; canonical=false
-sanitize!
-replace_invalid!
-replace_fillval_by_nan!
-```
-
 ## Public
 
 ```@autodocs

@@ -71,6 +71,23 @@ end
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax; names) isa NamedTuple{names}
 end
 
+@testitem "get_data masks per component" setup = [DataShare] begin
+    using SpaceDataModel: mask_invalid, ValidityChecks
+    for transpose in (false, true)
+        v = get_data("amda/imf", tmin, tmax; sanitize = false, transpose)
+        v["VALIDMAX"] = [1.0e9, 0.0, 1.0e9]
+        expected = mask_invalid(Array(v), ValidityChecks(v), transpose ? 1 : 2)
+        @test any(isnan, expected)
+        @test isequal(Array(mask_invalid(v)), expected)
+        @test isequal(Array(Speasy._sanitize(v)), expected)
+    end
+    raw = get_data("cda/OMNI_HRO_1MIN/IMF", "2016-1-1", "2016-1-10"; sanitize = false)  # Int32, FILLVAL 99
+    imf = Speasy._sanitize(raw)
+    @test eltype(imf) == Float64
+    @test isequal(Array(imf), mask_invalid(Array(raw), ValidityChecks(raw)))
+    @test any(isnan, imf)
+end
+
 @testitem "N-Dimensional data" begin
     tint_r = ["2015-10-30T05:14:44", "2015-10-30T05:17:44"]
     vdf_e_spz = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint_r...)

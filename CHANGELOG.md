@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking**: `get_data(...; sanitize = true)` masks with `SpaceDataModel.mask_invalid!`. `sanitize!`, `replace_invalid!` and `replace_fillval_by_nan!` are removed; use `SpaceDataModel.mask_invalid(var)`, which keeps numpy's memory order.
+
 ## [0.4.7] - 2025-10-17
 
 ### Changed
