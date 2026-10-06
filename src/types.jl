@@ -18,26 +18,33 @@ function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
     return @set A.data = similar(A.data, S, dims)
 end
 
-function SpeasyVariable(py::Py; transpose = false)
-    values = transpose ? @py(py.values.T) : @py(py.values)
-    data = PyArray(values, copy = false)
+"""
+    SpeasyVariable(py; layout = :julia)
+
+Wrap `speasy.SpeasyVariable` `py` without copying its values. With `layout = :julia`, time is the last dimension and
+dimension `i` is `DEPEND_i`; time-varying axes are time-last too.
+`layout = :python` keeps numpy's dimension order, time first.
+"""
+function SpeasyVariable(py::Py; layout = :julia)
+    data = pyarray(@py(py.values), layout)
     axes = @py py.axes
     len = length(axes)
     N = ndims(data)
     dims = ntuple(N) do i
-        si = transpose ? N - i + 1 : i
-        i <= len ? VariableAxis(axes[i - 1]) : (1:size(data, si))
+        a = layout === :julia ? mod(i, N) : i - 1 # numpy axis
+        a < len ? VariableAxis(axes[a]; layout) : (1:size(data, i))
     end
-    dims = transpose ? reverse(dims) : dims
     metadata = OverlayDict{Union{String, Symbol}, Any}(_pymeta(py))
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
 end
 
 _pymeta(py::Py) = PyDict{String, Any}(@py py.meta)
 
+# Time is last (`layout = :julia`) or first (`:python`); slicing may have dropped it.
 function SpaceDataModel.tdimnum(var::SpeasyVariable)
     N = ndims(var)
-    return eltype(var.dims[N]) <: AbstractDateTime ? N : 1
+    istime(i) = eltype(var.dims[i]) <: AbstractDateTime
+    return istime(N) ? N : istime(1) ? 1 : nothing
 end
 
 """
@@ -49,10 +56,7 @@ https://github.com/SciQLop/speasy/blob/main/speasy/core/data_containers.py#L234
     data::A
 end
 
-function VariableAxis(py::Py)
-    data = py2jlvalues(py)
-    return VariableAxis(py, data)
-end
+VariableAxis(py::Py; layout = :julia) = VariableAxis(py, py2jlvalues(py; layout))
 
 py_name(py::Py) = pyconvert(String, @py py.name)
 

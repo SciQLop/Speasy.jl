@@ -6,21 +6,27 @@ function Base.view(A::AbstractSupportDataContainer, raw_inds...)
     return @set A.data = data
 end
 
-function keys_view(keys, inds)
-    return map(enumerate(keys)) do (i, key)
-        N = ndims(key)
-        view(key, inds[i:i-1+N]...)
-    end
+# A time-varying axis spans its own dimension and the time dimension, in the variable's order.
+function axis_view(A, inds, i)
+    key = A.dims[i]
+    ndims(key) == 1 && return view(key, inds[i])
+    ndims(key) == 2 || throw(ArgumentError("cannot slice the $(ndims(key))-dimensional axis of dimension $i"))
+    t = tdimnum(A)
+    return view(key, (i < t ? (inds[i], inds[t]) : (inds[t], inds[i]))...)
 end
 
 function Base.view(A::SpeasyVariable, raw_inds...)
     inds = to_indices(A, raw_inds)
     data = view(parent(A), inds...)
     inds isa Tuple{Vararg{Integer}} && return data # scalar output
-    raw_keys = keys_view(A.dims, inds)
-    new_keys = ntuple(ndims(data)) do d
-        raw_keys === nothing && return axes(data, d)
-        raw_keys[d]
-    end
-    return @set (@set A.data = data).dims = new_keys
+    kept = filter(i -> !(inds[i] isa Integer), Tuple(eachindex(inds)))
+    # Linear, logical or multidimensional indices map no axis to a dimension.
+    dims = length(inds) == ndims(A) && length(kept) == ndims(data) ? map(i -> axis_view(A, inds, i), kept) : axes(data)
+    return @set (@set A.data = data).dims = dims
 end
+
+# Base's generic `getindex` goes through `similar`, which would keep the unsliced axes.
+Base.getindex(A::SpeasyVariable, I::Union{Real, AbstractArray, Colon, CartesianIndex}...) = _copy(view(A, I...))
+Base.@propagate_inbounds Base.getindex(A::SpeasyVariable, I::Vararg{Int}) = parent(A)[I...]
+_copy(v::SpeasyVariable) = @set v.data = copy(parent(v))
+_copy(x) = x[] # 0-dimensional view of a scalar

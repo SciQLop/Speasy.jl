@@ -54,9 +54,12 @@ function __init__()
 end
 
 """
-    get_data(args...; drop_nan=false)
+    get_data(args...; sanitize = true, layout = :julia, drop_nan = false, kw...)
 
 Get data using `speasy` Python package. We support the same arguments as `speasy.get_data`.
+
+`sanitize` masks fill values and values outside the valid range with `NaN`.
+`layout` sets the dimension order; see [`SpeasyVariable`](@ref).
 
 Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
 """

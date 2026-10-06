@@ -22,7 +22,16 @@ function _with_native(f, A::PyArray{T, N, M, L, T}) where {T, N, M, L}
     end
     return f(Base.inferencebarrier(A))
 end
+_with_native(f, A::PermutedDimsArray{<:Any, N, perm}) where {N, perm} = _with_native(B -> f(_permuted(B, perm)), parent(A))
 _with_native(f, A) = f(A)
+
+_permuted(A, perm) = PermutedDimsArray(A, perm)
+_permuted(A::PermutedDimsArray{<:Any, N, p}, perm) where {N, p} = PermutedDimsArray(parent(A), map(i -> p[i], perm))
+
+# `permutedims` copies cache-blocked; indexing the permuted view does not.
+Base.Array(var::SpeasyVariable) = _with_native(_materialize, parent(var))
+_materialize(A::PermutedDimsArray{<:Any, N, perm}) where {N, perm} = permutedims(parent(A), perm)
+_materialize(A) = Array(A)
 
 # Resolved on the variable: the alias has no time dimension to find `depend_1` by.
 _dims(var, dims) = something(dims, SpaceDataModel.depend_1_dimnum(var), 1)
@@ -56,11 +65,6 @@ pysanitize(var::Py; drop_out_of_range_values = false, kw...) =
 isprovider(s) = Symbol(s) in (:amda, :cda, :csa, :ssc, :archive)
 contain_provider(s::String) = first(eachsplit(s, "/")) in ("amda", "cda", "csa", "ssc", "archive")
 isspectrogram(var) = getmeta(var, "DISPLAY_TYPE") == "spectrogram"
-
-# https://github.com/SciQLop/speasy/discussions/156
-# Design note: time series of scalar type also have `N=1`
-isscalar(var) = false
-isscalar(var::AbstractMatrix) = size(var, 2) == 1
 
 # Row-major numpy data reach SpaceDataModel's masking as `PermutedDimsArray`s (see `_with_native`), which
 # SpaceDataModel does not precompile. Python is not loaded while precompiling.

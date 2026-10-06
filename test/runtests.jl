@@ -45,25 +45,24 @@ end
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa SpeasyVariable
     @test spz_var.dims isa Tuple
-    @test occursin("Units: ns", string(spz_var.dims[1]))
+    @test occursin("Units: ns", string(spz_var.dims[2]))
     @testset "Metadata access" begin
         m = spz_var.metadata
         @test haskey(m, "CATDESC")
         @test @allocations(haskey(m, "CATDESC")) <= 3
         @test m["CATDESC"] == "imf"
-        @test getmeta(spz_var.dims[1])["FIELDNAM"] == "Time"
+        @test getmeta(spz_var.dims[2])["FIELDNAM"] == "Time"
     end
     @test eltype(times(spz_var)) <: AbstractDateTime
-    @test tdimnum(spz_var) == 1
-    @test tdimnum(get_data("amda/imf", tmin, tmax; transpose = true)) == 2
+    @test tdimnum(spz_var) == 2
     @test units(spz_var) == "nT"
     @test unit(spz_var) == u"nT"
 
-    # Transpose
-    spz_var_t = get_data("amda/imf", tmin, tmax; transpose = true)
-    @test getmeta(spz_var_t.dims[2])["FIELDNAM"] == "Time"
-    @test eltype(times(spz_var_t)) <: AbstractDateTime
-    @test spz_var_t' == spz_var
+    spz_var_py = get_data("amda/imf", tmin, tmax; layout = :python)
+    @test tdimnum(spz_var_py) == 1
+    @test getmeta(spz_var_py.dims[1])["FIELDNAM"] == "Time"
+    @test spz_var_py' == spz_var
+    @test_throws ArgumentError get_data("amda/imf", tmin, tmax; layout = :numpy)
 
     @test get_data(NamedTuple, ["amda/imf", "amda/dst"], tmin, tmax) isa NamedTuple{(:imf, :dst)}
     @test getdata(spz"amda/imf", tmin, tmax) isa SpeasyVariable
@@ -73,10 +72,10 @@ end
 
 @testitem "get_data masks per component" setup = [DataShare] begin
     using SpaceDataModel: mask_invalid, ValidityChecks
-    for transpose in (false, true)
-        v = get_data("amda/imf", tmin, tmax; sanitize = false, transpose)
+    for layout in (:julia, :python)
+        v = get_data("amda/imf", tmin, tmax; sanitize = false, layout)
         v["VALIDMAX"] = [1.0e9, 0.0, 1.0e9]
-        expected = mask_invalid(Array(v), ValidityChecks(v), transpose ? 1 : 2)
+        expected = mask_invalid(Array(v), ValidityChecks(v), layout === :julia ? 1 : 2)
         @test any(isnan, expected)
         @test isequal(Array(mask_invalid(v)), expected)
         @test isequal(Array(Speasy._sanitize(v)), expected)
@@ -89,20 +88,44 @@ end
 end
 
 @testitem "N-Dimensional data" begin
-    tint_r = ["2015-10-30T05:14:44", "2015-10-30T05:17:44"]
-    vdf_e_spz = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint_r...)
-    @test vdf_e_spz isa SpeasyVariable
+    using SpaceDataModel: mask_invalid, ValidityChecks, name, times
+    using Speasy.SpaceDataModel: tdimnum
+    # numpy (time, phi = DEPEND_1, theta = DEPEND_2, energy = DEPEND_3); phi and energy are time-varying
+    tint = ("2015-10-30T05:14:44", "2015-10-30T05:17:44")
+    v = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint...; sanitize = false)
+    p = SpeasyVariable(v.py; layout = :python) # shares v's memory
+    nt = size(p, 1)
+    @test size(v) == (32, 16, 32, nt)
+    @test tdimnum(v) == 4
+    @test isequal(v, PermutedDimsArray(p, (2, 3, 4, 1)))
+    @test name.(v.dims) == (v["DEPEND_1"], v["DEPEND_2"], v["DEPEND_3"], "time")
+    @test v.dims[1] == p.dims[2]'
+    @test Array(v) == collect(parent(v)) && Array(p) == collect(parent(p))
+    @test size.(view(v, 2:3, :, 4:4, 5:7).dims) == ((2, 3), (16,), (1, 3), (3,))
+    w = v[2, :, 4, 5:7]
+    @test size.(w.dims) == ((16,), (3,)) && times(w) == times(v)[5:7]
+    @test w == Array(v)[2, :, 4, 5:7]
+    snapshot = view(v, :, :, :, 5)
+    @test isnothing(tdimnum(snapshot))
+    @test snapshot.dims[1] == v.dims[1][:, 5]
+
+    # Bounds per phi; energy has as many channels, so masking along the wrong dimension differs
+    v["VALIDMAX"] = p["VALIDMAX"] = [i <= 16 ? 1.0e-25 : 1.0e9 for i in 1:32]
+    expected = mask_invalid(Array(v), ValidityChecks(v), 1)
+    @test any(isnan, expected) && !all(isnan, expected)
+    @test isequal(parent(mask_invalid(v)), expected)
+    @test isequal(parent(mask_invalid(p)), PermutedDimsArray(expected, (4, 1, 2, 3)))
+    @test isequal(parent(Speasy._sanitize(v)), expected)
 end
 
 @testitem "Array and SpaceDataModel Interface" setup = [DataShare] begin
     using SpaceDataModel: times
     using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", tmin, tmax)
-    @info typeof(spz_var)
     @test spz_var isa AbstractArray
     @test parent(spz_var) isa PyArray
     @test_nowarn Array(spz_var)
-    @test size(spz_var, 2) == 3
+    @test size(spz_var, 1) == 3
     @test spz_var[1, 2] == Array(spz_var)[1, 2]
     @test eltype(spz_var) == Float32
 
@@ -112,20 +135,24 @@ end
 
     # Test similar method for VariableAxis
     spz_var = get_data("cda/SOHO_ERNE-HED_L2-1MIN/AH", "20211028T06", "20211028T06:10")
-    axis = spz_var.dims[1]
+    axis = spz_var.dims[2]
     @test axis isa Speasy.VariableAxis
     similar_axis = similar(axis, Float64, (10,))
     @test similar_axis isa Speasy.VariableAxis
     @test eltype(similar_axis) == Float64
     @test size(similar_axis) == (10,)
 
-    @test times(spz_var) == spz_var.dims[1]
-    @test isnothing(times(spz_var.dims[2]))
+    @test times(spz_var) == spz_var.dims[2]
+    @test isnothing(times(spz_var.dims[1]))
 
     @testset "view" begin
-        view_var = selectdim(spz_var, 2, [1, 3, 5])
-        @test size(view_var) == (10, 3)
-        @test size(view_var.dims[2]) == (3,)
+        view_var = selectdim(spz_var, 1, [1, 3, 5])
+        @test size(view_var) == (3, 10)
+        @test size(view_var.dims[1]) == (3,)
+        @test times(selectdim(spz_var, 1, 2)) == times(spz_var)
+        w = spz_var[2, 3:5]
+        @test times(w) == times(spz_var)[3:5]
+        @test w == Array(spz_var)[2, 3:5]
     end
 end
 
@@ -172,7 +199,10 @@ end
 @testitem "DimensionalData" setup = [DataShare] begin
     using DimensionalData
     spz_var1 = get_data("amda/imf", tmin, tmax)
-    @test DimArray(spz_var1) isa DimArray
+    da = DimArray(spz_var1)
+    @test dims(da, Ti) == dims(da)[2]
+    @test parent(da) === parent(spz_var1)
+    @test dims(DimArray(get_data("amda/imf", tmin, tmax; layout = :python)))[1] isa Ti
 
     spz_var2 = get_data("amda/solo_het_omni_hflux", "2020-11-28T00:00", "2020-11-28T00:10")
     @test DimArray(spz_var2) isa DimArray
@@ -181,7 +211,8 @@ end
 @testitem "TimeSeriesExt.jl" setup = [DataShare] begin
     using TimeSeries
     spz_var = get_data("amda/imf", tmin, tmax)
-    @test TimeArray(spz_var) isa TimeArray
+    ta = TimeArray(spz_var)
+    @test values(ta) == permutedims(spz_var)
 end
 
 @testitem "MakieExt.jl" tags = [:skipci] setup = [DataShare] begin
