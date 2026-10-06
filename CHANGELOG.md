@@ -4,7 +4,14 @@
 
 ### Changed
 
+- **Breaking**: time is the last dimension by default, with dimension `i` the ISTP `DEPEND_i`, zero-copy; time-varying axes follow. The `transpose` keyword of `get_data` and `SpeasyVariable` is replaced by `layout = :julia` (default) or `:python` (numpy's time-first order). `DimArray(::SpeasyVariable)` names every dimension, time as `Ti` wherever it is; `DimArray(::VariableAxis)` is removed.
 - **Breaking**: `get_data(...; sanitize = true)` masks with `SpaceDataModel.mask_invalid!`. `sanitize!`, `replace_invalid!` and `replace_fillval_by_nan!` are removed; use `SpaceDataModel.mask_invalid(var)`, which keeps numpy's memory order.
+
+### Fixed
+
+- `view` of a `SpeasyVariable` slices time-varying axes along their time dimension and drops the axes of integer-indexed dimensions.
+- Non-scalar indexing (`v[2, 1:5]`) returns the sliced axes instead of the source's.
+- `Array(::SpeasyVariable)` copies in memory order.
 
 ## [0.4.7] - 2025-10-17
 

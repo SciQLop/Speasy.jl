@@ -12,7 +12,7 @@ function pyconvert_time(times)
     return reinterpret(Timestamp{Nanosecond}, py_ns)
 end
 
-function py2jlvalues(var; copy = false)
+function py2jlvalues(var; layout = :julia)
     py = @py var.values
     # Check if the array has byte string dtype (e.g., '|S22')
     dtype = @py py.dtype
@@ -26,7 +26,18 @@ function py2jlvalues(var; copy = false)
     else
         py
     end
-    return PyArray(valid_py; copy)
+    return pyarray(valid_py, layout)
+end
+
+# numpy (t, D1, …, Dk), row-major, as Julia (D1, …, Dk, t) without copying. For k ≥ 2 the result is a
+# `PermutedDimsArray` whose dimension 1 is not the fastest in memory, so generic loops stride; internal
+# kernels (`_with_native`, `Array`) undo the permutation instead.
+function pyarray(values::Py, layout)
+    layout === :python && return PyArray(values; copy = false)
+    layout === :julia || throw(ArgumentError("layout must be :julia or :python, got $(repr(layout))"))
+    A = PyArray(@py(values.T); copy = false)
+    N = ndims(A)
+    return N <= 2 ? A : PermutedDimsArray(A, (ntuple(i -> N - i, N - 1)..., N))
 end
 
 is_pylist(x) = pyisinstance(x, pybuiltins.list)

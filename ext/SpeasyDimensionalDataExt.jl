@@ -1,17 +1,21 @@
 module SpeasyDimensionalDataExt
 using DimensionalData
 using Speasy
-using Speasy: AbstractSupportDataContainer
+using Speasy: tdimnum
 import Speasy: get_data
 import DimensionalData: DimArray, DimStack, dims
 
-is_scalar(v) = ndims(v) == 2 && size(v, 2) == 1
+is_scalar(v) = ndims(v) == 2 && !isnothing(tdimnum(v)) && size(v, 3 - tdimnum(v)) == 1
 
 function DimensionalData.dims(v::SpeasyVariable)
-    dim1 = Ti(v.dims[1])
-    d2 = v.dims[2]
-    dim2 = Y(ndims(d2) == 1 ? d2 : 1:size(d2, 2))
-    return (dim1, dim2)
+    t = something(tdimnum(v), ndims(v) + 1)
+    return ntuple(ndims(v)) do i
+        i == t && return Ti(v.dims[i])
+        d = v.dims[i]
+        lookup = ndims(d) == 1 ? d : 1:size(v, i)
+        j = i < t ? i : i - 1
+        j == 1 ? Y(lookup) : j == 2 ? Z(lookup) : Dim{Symbol(:dim, j)}(lookup)
+    end
 end
 
 """
@@ -28,16 +32,10 @@ function DimArray(v::SpeasyVariable; standardize = false)
     name = v.name
     metadata = v.metadata
     return if standardize && is_scalar(v)
-        DimArray(vec(values), dims(v)[1]; name, metadata)
+        DimArray(vec(values), dims(v)[tdimnum(v)]; name, metadata)
     else
         DimArray(values, dims(v); name, metadata)
     end
-end
-
-function DimArray(v::AbstractSupportDataContainer)
-    data = parent(v)
-    dims = ndims(data) == 1 ? (Ti(),) : (Ti(), Y())
-    return DimArray(data, dims; name = v.name, metadata = v.metadata)
 end
 
 function DimArray(vs::AbstractArray{SpeasyVariable})
