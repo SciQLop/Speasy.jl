@@ -10,10 +10,6 @@ abstract type AbstractSupportDataContainer{T, N} <: AbstractDataContainer{T, N} 
     metadata
 end
 
-function Base.show(io::IO, T::Type{<:AbstractDataContainer})
-    return print(io, "$(nameof(T)){$(eltype(T)), $(ndims(T))}")
-end
-
 function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
     return @set A.data = similar(A.data, S, dims)
 end

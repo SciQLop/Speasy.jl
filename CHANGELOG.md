@@ -12,6 +12,7 @@
 - `view` of a `SpeasyVariable` slices time-varying axes along their time dimension and drops the axes of integer-indexed dimensions.
 - Non-scalar indexing (`v[2, 1:5]`) returns the sliced axes instead of the source's.
 - `Array(::SpeasyVariable)` copies in memory order.
+- Printing a non-concrete `SpeasyVariable` type (e.g. `SpeasyVariable`, or in stack traces) no longer throws; types print with Julia's default `show`, which also removes ~3000 method invalidations on load.
 
 ## [0.4.7] - 2025-10-17
 
