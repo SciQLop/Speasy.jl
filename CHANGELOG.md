@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Provider registries `Speasy.amda`, `Speasy.cda`, `Speasy.csa`, `Speasy.ssc`, `Speasy.archive`: `keys` lists dataset ids and `provider[id]` is a dataset whose `keys` are parameter ids, with `getmeta`, `getdata` and `ds[parameter]`. Providers initialise on first use. `getdata` is exported.
+
+### Fixed
+
+- `list_parameters(provider, dataset)` returns parameter ids, usable with `get_data`; on AMDA it returned display names (`"b_gse"` instead of `"imf"`). It, `list_parameters(provider)` and `find_datasets` now initialise the provider when needed.
+
 ## [0.5.0] - 2026-10-06
 
 ### Changed

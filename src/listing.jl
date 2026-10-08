@@ -1,7 +1,8 @@
 """
     list_parameters(provider, [dataset]; verbose=false)
 
-Find the available parameters for a given `provider` or for a specific `dataset` from `provider`.
+Find the available parameter ids for a given `provider` or for a specific `dataset` from `provider`;
+the latter are `keys(provider[dataset])`.
 
 Set `verbose=true` to print the metadata of the dataset.
 
@@ -24,35 +25,13 @@ list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN")
 
 See also: [`find_datasets`](@ref)
 """
-function list_parameters(s)
-    provider_py = getproperty(speasy, s)
-    dict = provider_py.flat_inventory.parameters
-    return pyconvert(PyList{String}, pylist(dict))
-end
-
-# https://github.com/SciQLop/speasy/blob/main/speasy/products/dataset.py
-# https://github.com/SciQLop/speasy/blob/main/speasy/core/inventory/indexes.py
-function print_dataset_metadata(dataset_py)
-    dict = PyDict{String, Py}(dataset_py.__dict__)
-    ParameterIndex = @pyconst pyimport("speasy.core.inventory.indexes").ParameterIndex
-    io = IOBuffer()
-    println(io, "DatasetIndex Metadata:")
-    for (key, value) in dict
-        if !pyisinstance(value, ParameterIndex)
-            println(io, "  ", key, ": ", value)
-        end
-    end
-    return @info String(take!(io))
-end
+list_parameters(provider) = String.(_pylines(_inventory(Provider(Symbol(provider))).parameters))
 
 function list_parameters(provider, dataset; verbose = false)
-    provider_py = getproperty(speasy, String(provider))
-    dataset_py = provider_py.flat_inventory.datasets[pystr(dataset)] # this is a iterator
-    verbose && print_dataset_metadata(dataset_py)
-    return map(spz_name, dataset_py)
+    ds = Provider(Symbol(provider))[String(dataset)]
+    verbose && @info "DatasetIndex Metadata" metadata = getmeta(ds)
+    return keys(ds)
 end
-
-spz_name(py) = pyconvert(String, py.spz_name())
 
 """
     find_datasets(provider, [term...])
@@ -80,19 +59,5 @@ find_datasets(:cda, :OMNI, :HRO)
 
 See also: [`list_parameters`](@ref)
 """
-function find_datasets(provider)
-    provider_py = getproperty(speasy, provider)
-    dict = provider_py.flat_inventory.datasets
-    return pyconvert(PyList{String}, pylist(dict))
-end
-
-function find_datasets(provider, s...)
-    provider_py = getproperty(speasy, provider)
-    dict = provider_py.flat_inventory.datasets
-    datasets = String[]
-    pys = pystr.(s)
-    for ds in dict
-        all(x -> pyin(x, ds), pys) && push!(datasets, pyconvert(String, ds))
-    end
-    return datasets
-end
+find_datasets(provider, terms...) =
+    filter(ds -> all(t -> occursin(string(t), ds), terms), keys(Provider(Symbol(provider))))

@@ -5,8 +5,7 @@
 ```@docs; canonical=false
 get_data
 @spz_str
-list_parameters
-find_datasets
+Speasy.SpeasyDataset
 ```
 
 ## Data Types
