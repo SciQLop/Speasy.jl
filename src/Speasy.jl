@@ -18,7 +18,7 @@ using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py
 using SpaceDataModel
-using SpaceDataModel: Product, ValidityChecks, mask_invalid, mask_invalid!
+using SpaceDataModel: DataSource, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
 import SpaceDataModel: units, getmeta, name, tdimnum
 import SpaceDataModel: times, OverlayDict
 
