@@ -20,6 +20,9 @@ Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 TimeSeries = "9e3dc215-6440-5c97-bce1-76c03772f85e"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[sources]
+SpaceDataModel = {rev = "main", url = "https://github.com/JuliaSpacePhysics/SpaceDataModel.jl"}
+
 [extensions]
 SpeasyDimensionalDataExt = "DimensionalData"
 SpeasyTimeSeriesExt = "TimeSeries"
@@ -33,7 +36,7 @@ DimensionalData = "0.29, 0.30"
 Durations = "1.4"
 Makie = "0.21, 0.22, 0.23, 0.24"
 PythonCall = "0.9.23"
-SpaceDataModel = "0.4"
+SpaceDataModel = "0.4.5"
 TimeSeries = "0.24, 0.25, 0.26"
 Unitful = "1.22"
 julia = "1.10"

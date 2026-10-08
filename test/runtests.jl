@@ -16,15 +16,11 @@ end
 
 @testitem "spz_str macro" begin
     # Test single parameter
-    using Speasy: Product, SpeasySource
     using SpaceDataModel: name
     product = spz"cda/OMNI_HRO_1MIN/flow_speed"
-    @test product isa Product
-    @test product.dataset isa SpeasySource
-    @test product.dataset.id == "cda/OMNI_HRO_1MIN"
-    @test product.variable == "flow_speed"
     @test name(product) == "cda/OMNI_HRO_1MIN/flow_speed"
-    @test spz"OMNI_HRO_1MIN/flow_speed" isa Product
+    @test name(spz"OMNI_HRO_1MIN/flow_speed") == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test eval(Meta.parse(repr(product))) == product
 
     # Test multiple parameters with spaces
     products_spaces = spz"cda/OMNI_HRO_1MIN/flow_speed, Bx_gse , By_gse"
