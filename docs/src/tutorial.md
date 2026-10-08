@@ -15,13 +15,23 @@ imf_data = get_data("amda/imf", "2016-6-2", "2016-6-3")
 
 ## Find the available datasets and parameters
 
-```@docs; canonical=false
-find_datasets
-list_parameters
+Each provider is a registry (`Speasy.amda`, `Speasy.cda`, `Speasy.csa`, `Speasy.ssc`, `Speasy.archive`): `keys` lists its dataset ids, and indexing gives a dataset whose `keys` are parameter ids.
+
+```@example tutorial
+filter(contains(r"OMNI.*HRO"), keys(Speasy.cda))
 ```
 
 ```@example tutorial
-list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN"; verbose=true)
+ds = Speasy.cda["SOHO_ERNE-HED_L2-1MIN"]
+keys(ds)
+```
+
+```@example tutorial
+getmeta(ds)
+```
+
+```@example tutorial
+getdata(ds["PH"], "2016-6-2", "2016-6-3")
 ```
 
 ## Using Dynamic Inventory

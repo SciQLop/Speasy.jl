@@ -20,6 +20,59 @@ end
 name(p::SpeasyProduct) = getmeta(p, "name", p.id)
 SpaceDataModel.getdata(p::SpeasyProduct, t0, t1; kw...) = get_data(p.id, t0, t1; kw...)
 
+"""
+    Speasy.Provider(name)
+
+The datasets of the Speasy provider `name` (`:amda`, `:cda`, `:csa`, `:ssc`, `:archive`), a `SpaceDataModel.AbstractRegistry`:
+`keys` are dataset ids, `provider[id]` a [`SpeasyDataset`](@ref). Bound as `Speasy.amda`, `Speasy.cda`, ….
+"""
+struct Provider <: AbstractRegistry
+    name::Symbol
+end
+
+const amda, cda, csa, ssc, archive = Provider.((:amda, :cda, :csa, :ssc, :archive))
+
+_inventory(p::Provider) = getproperty(speasy, p.name).flat_inventory
+Base.keys(p::Provider) = pyconvert(Vector{String}, pylist(_inventory(p).datasets))
+function Base.getindex(p::Provider, id::AbstractString)
+    pyin(pystr(id), _inventory(p).datasets) || throw(KeyError(id))
+    return SpeasyDataset(p, String(id))
+end
+name(p::Provider) = String(p.name)
+Base.show(io::IO, p::Provider) = print(io, "Speasy.", p.name)
+
+"""
+    SpeasyDataset(provider, id)
+
+The dataset `id` of `provider`; `keys` are its parameter ids, `ds[id]` a `Product`.
+"""
+struct SpeasyDataset <: AbstractDataset
+    provider::Provider
+    id::String
+end
+
+_index(ds::SpeasyDataset) = _inventory(ds.provider).datasets[pystr(ds.id)]
+# A parameter uid is "dataset/parameter" on CDAWeb-like providers but standalone on AMDA.
+_uid(ds::SpeasyDataset, var) = (uid = "$(ds.id)/$var"; pyin(pystr(uid), _inventory(ds.provider).parameters) ? uid : String(var))
+_product_id(ds::SpeasyDataset, var) = "$(ds.provider.name)/$(_uid(ds, var))"
+
+Base.keys(ds::SpeasyDataset) = [String(chopprefix(pyconvert(String, p.spz_uid()), "$(ds.id)/")) for p in _index(ds)]
+name(ds::SpeasyDataset) = ds.id
+Base.show(io::IO, ds::SpeasyDataset) = print(io, ds.provider, "[", repr(ds.id), "]")
+
+function getmeta(ds::SpeasyDataset)
+    ParameterIndex = @pyconst pyimport("speasy.core.inventory.indexes").ParameterIndex
+    attrs = PyDict{String, Py}(_index(ds).__dict__)
+    return Dict{String, Any}(k => pyconvert(Any, v) for (k, v) in attrs if !pyisinstance(v, ParameterIndex))
+end
+
+function SpaceDataModel.getdata(ds::SpeasyDataset, t0, t1; kw...)
+    vars = keys(ds)
+    return Dict(zip(vars, get_data([_product_id(ds, v) for v in vars], t0, t1; kw...)))
+end
+SpaceDataModel.getdata(p::Product{SpeasyDataset}, t0, t1; kw...) =
+    get_data(_product_id(parent(p), p.variable), t0, t1; kw...)
+
 Base.show(io::IO, p::SpeasyProduct) = print(io, "spz", repr(p.id))
 function Base.show(io::IO, ::MIME"text/plain", p::SpeasyProduct)
     printstyled(io, "SpeasyProduct: "; bold=true)

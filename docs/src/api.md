@@ -5,6 +5,8 @@
 ```@docs; canonical=false
 get_data
 @spz_str
+Speasy.Provider
+SpeasyDataset
 list_parameters
 find_datasets
 ```

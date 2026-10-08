@@ -15,6 +15,12 @@ using Pkg; Pkg.add("Speasy")
 using Speasy
 
 get_data("amda/imf", "2016-6-2", "2016-6-5")
+
+# Discovery: providers are SpaceDataModel registries (`Speasy.amda`, `Speasy.cda`, `Speasy.csa`, `Speasy.ssc`, `Speasy.archive`)
+filter(contains(r"OMNI.*HRO"), keys(Speasy.cda))   # dataset ids
+ds = Speasy.cda["OMNI_HRO_1MIN"]
+keys(ds); getmeta(ds)                              # parameter ids, dataset attributes
+getdata(ds["flow_speed"], "2016-6-2", "2016-6-3")
 ```
 
 > [!NOTE]

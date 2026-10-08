@@ -30,25 +30,10 @@ function list_parameters(s)
     return pyconvert(PyList{String}, pylist(dict))
 end
 
-# https://github.com/SciQLop/speasy/blob/main/speasy/products/dataset.py
-# https://github.com/SciQLop/speasy/blob/main/speasy/core/inventory/indexes.py
-function print_dataset_metadata(dataset_py)
-    dict = PyDict{String, Py}(dataset_py.__dict__)
-    ParameterIndex = @pyconst pyimport("speasy.core.inventory.indexes").ParameterIndex
-    io = IOBuffer()
-    println(io, "DatasetIndex Metadata:")
-    for (key, value) in dict
-        if !pyisinstance(value, ParameterIndex)
-            println(io, "  ", key, ": ", value)
-        end
-    end
-    return @info String(take!(io))
-end
-
 function list_parameters(provider, dataset; verbose = false)
     provider_py = getproperty(speasy, String(provider))
     dataset_py = provider_py.flat_inventory.datasets[pystr(dataset)] # this is a iterator
-    verbose && print_dataset_metadata(dataset_py)
+    verbose && @info "DatasetIndex Metadata" metadata = getmeta(SpeasyDataset(Provider(Symbol(provider)), String(dataset)))
     return map(spz_name, dataset_py)
 end
 
