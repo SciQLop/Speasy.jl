@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · Speasy.jl</title><meta name="title" content="Tutorial · Speasy.jl"/><meta property="og:title" content="Tutorial · Speasy.jl"/><meta property="twitter:title" content="Tutorial · Speasy.jl"/><meta name="description" content="Documentation for Speasy.jl."/><meta property="og:description" content="Documentation for Speasy.jl."/><meta property="twitter:description" content="Documentation for Speasy.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.63.2/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Speasy.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Find-datasets-and-parameters"><span>Find datasets and parameters</span></a></li><li><a class="tocitem" href="#Get-data"><span>Get data</span></a></li><li><a class="tocitem" href="#Python-style-get_data"><span>Python-style <code>get_data</code></span></a></li></ul></li><li><a class="tocitem" href="../api/">API Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciQLop/Speasy.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciQLop/Speasy.jl/blob/main/docs/src/tutorial.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><h2 id="Find-datasets-and-parameters"><a class="docs-heading-anchor" href="#Find-datasets-and-parameters">Find datasets and parameters</a><a id="Find-datasets-and-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Find-datasets-and-parameters" title="Permalink"></a></h2><p>Each provider (<code>Speasy.amda</code>, <code>Speasy.cda</code>, <code>Speasy.csa</code>, <code>Speasy.ssc</code>, <code>Speasy.archive</code>) indexes datasets by id; a dataset indexes its parameters.</p><pre><code class="language-julia hljs">using Speasy
+filter(contains(r&quot;OMNI.*HRO&quot;), keys(Speasy.cda))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4-element Vector{String}:
+ &quot;OMNI_HRO_1MIN&quot;
+ &quot;OMNI_HRO2_1MIN&quot;
+ &quot;OMNI_HRO_5MIN&quot;
+ &quot;OMNI_HRO2_5MIN&quot;</code></pre><pre><code class="language-julia hljs">ds = Speasy.cda[&quot;SOHO_ERNE-HED_L2-1MIN&quot;]
+keys(ds)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5-element Vector{String}:
+ &quot;est&quot;
+ &quot;PH&quot;
+ &quot;AH&quot;
+ &quot;PHC&quot;
+ &quot;AHC&quot;</code></pre><pre><code class="language-julia hljs">getmeta(ds)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Any} with 18 entries:
+  &quot;description&quot;             =&gt; &quot;SOHO ERNE-HED Level2 1 minute data - Rami Vaini…
+  &quot;start_date&quot;              =&gt; &quot;1996-05-07 17:19:56&quot;
+  &quot;subdividedby&quot;            =&gt; &quot;%Y&quot;
+  &quot;spase_DatasetResourceID&quot; =&gt; &quot;spase://ESA/NumericalData/SOHO/ERNE/HED/CDF/PT1…
+  &quot;Time_resolution&quot;         =&gt; &quot;1 minute&quot;
+  &quot;__spz_provider__&quot;        =&gt; &quot;cda&quot;
+  &quot;__spz_uid__&quot;             =&gt; &quot;SOHO_ERNE-HED_L2-1MIN&quot;
+  &quot;nssdc_ID&quot;                =&gt; &quot;(None) &quot;
+  &quot;HTTP_LINK&quot;               =&gt; &quot;https://export.srl.utu.fi/&quot;
+  &quot;Data_type&quot;               =&gt; &quot;L2-1MIN&gt;Level2 1 minute resolution&quot;
+  &quot;serviceprovider_ID&quot;      =&gt; &quot;SOHO_ERNE-HED_L2-1MIN&quot;
+  &quot;stop_date&quot;               =&gt; &quot;2026-09-22 23:59:39&quot;
+  &quot;filenaming&quot;              =&gt; &quot;soho_erne-hed_l2-1min_%Y%m%d_%Q.cdf&quot;
+  &quot;url&quot;                     =&gt; &quot;https://cdaweb.gsfc.nasa.gov/pub/data/soho/erne…
+  &quot;mastercdf&quot;               =&gt; &quot;https://cdaweb.gsfc.nasa.gov/pub/software/cdawl…
+  &quot;__spz_name__&quot;            =&gt; &quot;SOHO_ERNE_HED_L2_1MIN&quot;
+  &quot;ID&quot;                      =&gt; &quot;soho_erne-hed_l2-1min_cdaweb&quot;
+  &quot;__spz_type__&quot;            =&gt; &quot;DatasetIndex&quot;</code></pre><h2 id="Get-data"><a class="docs-heading-anchor" href="#Get-data">Get data</a><a id="Get-data-1"></a><a class="docs-heading-anchor-permalink" href="#Get-data" title="Permalink"></a></h2><p><code>ds[parameter]</code> and <code>spz&quot;provider/dataset/parameter&quot;</code> both give a <a href="../api/#Speasy.SpeasyProduct"><code>SpeasyProduct</code></a>. <code>getdata(product, t0, t1)</code> fetches it, as does calling the product:</p><pre><code class="language-julia hljs">getdata(ds[&quot;PH&quot;], &quot;2016-6-2&quot;, &quot;2016-6-3&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SpeasyVariable{Float32, 2, PythonCall.PyArray{Float32, 2, true, true, Float32}, Tuple{VariableAxis{Float32, 1, PythonCall.PyArray{Float32, 1, true, true, Float32}}, VariableAxis{Durations.Timestamp{Dates.Nanosecond}, 1, Base.ReinterpretArray{Durations.Timestamp{Dates.Nanosecond}, 1, Int64, PythonCall.PyArray{Int64, 1, true, true, Int64}, false}}}, String, SpaceDataModel.OverlayDict{Union{String, Symbol}, Any, PythonCall.PyDict{String, Any}, Dict{Union{String, Symbol}, Any}}}: <span class="sgr38_5" style="color:#00afaf">PH</span>
+  Time Range: 2016-06-02T00:00:34.503 to 2016-06-02T23:32:28.269
+  Units: (cm^2 s sr MeV)^-1
+  Size: (10, 906)
+  Memory Usage: 44.206 KiB
+  Metadata:
+    CATDESC: Proton intensity in 10 energy ranges (nominal 13-130 MeV)
+    FIELDNAM: Proton intensity in 10 energy ranges
+    LABLAXIS: Proton intensity
+    FILLVAL: Any[-9.999999848243207e30]
+    VALIDMIN: Any[0.0]
+    VALIDMAX: Any[100000.0]
+    UNITS: (cm^2 s sr MeV)^-1
+    VAR_TYPE: data
+    DEPEND_0: Epoch
+    DEPEND_1: P_energy
+    FORMAT: E9.2
+    DISPLAY_TYPE: stack_plot&gt;NOBAR&gt;y=PH,z=P_energy
+    SCALETYP: log</code></pre><pre><code class="language-julia hljs">imf = spz&quot;amda/imf&quot;
+imf(&quot;2016-6-2&quot;, &quot;2016-6-3&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SpeasyVariable{Float32, 2, PythonCall.PyArray{Float32, 2, true, true, Float32}, Tuple{UnitRange{Int64}, VariableAxis{Durations.Timestamp{Dates.Nanosecond}, 1, Base.ReinterpretArray{Durations.Timestamp{Dates.Nanosecond}, 1, Int64, PythonCall.PyArray{Int64, 1, true, true, Int64}, false}}}, String, SpaceDataModel.OverlayDict{Union{String, Symbol}, Any, PythonCall.PyDict{String, Any}, Dict{Union{String, Symbol}, Any}}}: <span class="sgr38_5" style="color:#00afaf">imf</span>
+  Time Range: 2016-06-02T00:00:15 to 2016-06-02T23:59:59
+  Units: nT
+  Size: (3, 5400)
+  Memory Usage: 106.605 KiB
+  Metadata:
+    CATDESC: imf
+    FIELDNAM: b_gse
+    FORMAT: F11.4
+    VAR_TYPE: data
+    FILLVAL: Any[NaN]
+    SI_CONVERSION: 1e-9&gt;T
+    VALIDMIN: Any[-3.4028234663852886e38]
+    VALIDMAX: Any[3.4028234663852886e38]
+    DATA: N/A
+    DISPLAY_TYPE: time_series
+    TENSOR_FRAME: GSE
+    TENSOR_ORDER: 0
+    UNITS: nT
+    VAR_NOTES:  
+    DEPEND_0: AMDA_TIME
+    LABL_PTR_1: Any[&quot;bx&quot;, &quot;by&quot;, &quot;bz&quot;]</code></pre><p>Several parameters: broadcast, or <code>getdata(ds, t0, t1)</code> for all of a dataset&#39;s.</p><pre><code class="language-julia hljs">omni = Speasy.cda[&quot;OMNI_HRO_1MIN&quot;]
+flow_speed, pressure = getdata.((omni[&quot;flow_speed&quot;], omni[&quot;Pressure&quot;]), &quot;2016-6-2&quot;, &quot;2016-6-3&quot;)
+times(pressure), parent(pressure)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">(<span class="sgr38_5" style="color:#00afaf">time</span> [ Units: ns, Size: (1440,)], Float32[1.41 1.46 … NaN NaN])</code></pre><p>SSCWeb trajectories take the coordinate system as a last path segment (default <code>gse</code>):</p><pre><code class="language-julia hljs">spz&quot;ssc/wind/gsm&quot;(&quot;2016-6-2&quot;, &quot;2016-6-3&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SpeasyVariable{Float64, 2, PythonCall.PyArray{Float64, 2, true, true, Float64}, Tuple{UnitRange{Int64}, VariableAxis{Durations.Timestamp{Dates.Nanosecond}, 1, Base.ReinterpretArray{Durations.Timestamp{Dates.Nanosecond}, 1, Int64, PythonCall.PyArray{Int64, 1, true, true, Int64}, false}}}, String, SpaceDataModel.OverlayDict{Union{String, Symbol}, Any, PythonCall.PyDict{String, Any}, Dict{Union{String, Symbol}, Any}}}: <span class="sgr38_5" style="color:#00afaf">Position</span>
+  Time Range: 2016-06-02T00:00:00 to 2016-06-02T23:48:00
+  Units: km
+  Size: (3, 120)
+  Memory Usage: 4.420 KiB
+  Metadata:
+    CoordinateSystem: GSM
+    UNITS: km</code></pre><h2 id="Python-style-get_data"><a class="docs-heading-anchor" href="#Python-style-get_data">Python-style <code>get_data</code></a><a id="Python-style-get_data-1"></a><a class="docs-heading-anchor-permalink" href="#Python-style-get_data" title="Permalink"></a></h2><p><a href="../api/#Speasy.get_data-api"><code>get_data</code></a> takes the same arguments as Python <code>speasy.get_data</code>, including its dynamic inventory:</p><pre><code class="language-julia hljs">ace_imf = speasy.inventories.data_tree.amda.Parameters.ACE.MFI.ace_imf_all.imf
+get_data(ace_imf, &quot;2016-6-2&quot;, &quot;2016-6-3&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">SpeasyVariable{Float32, 2, PythonCall.PyArray{Float32, 2, true, true, Float32}, Tuple{UnitRange{Int64}, VariableAxis{Durations.Timestamp{Dates.Nanosecond}, 1, Base.ReinterpretArray{Durations.Timestamp{Dates.Nanosecond}, 1, Int64, PythonCall.PyArray{Int64, 1, true, true, Int64}, false}}}, String, SpaceDataModel.OverlayDict{Union{String, Symbol}, Any, PythonCall.PyDict{String, Any}, Dict{Union{String, Symbol}, Any}}}: <span class="sgr38_5" style="color:#00afaf">imf</span>
+  Time Range: 2016-06-02T00:00:15 to 2016-06-02T23:59:59
+  Units: nT
+  Size: (3, 5400)
+  Memory Usage: 106.605 KiB
+  Metadata:
+    CATDESC: imf
+    FIELDNAM: b_gse
+    FORMAT: F11.4
+    VAR_TYPE: data
+    FILLVAL: Any[NaN]
+    SI_CONVERSION: 1e-9&gt;T
+    VALIDMIN: Any[-3.4028234663852886e38]
+    VALIDMAX: Any[3.4028234663852886e38]
+    DATA: N/A
+    DISPLAY_TYPE: time_series
+    TENSOR_FRAME: GSE
+    TENSOR_ORDER: 0
+    UNITS: nT
+    VAR_NOTES:  
+    DEPEND_0: AMDA_TIME
+    LABL_PTR_1: Any[&quot;bx&quot;, &quot;by&quot;, &quot;bz&quot;]</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../api/">API Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Friday 9 October 2026 15:35">Friday 9 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
