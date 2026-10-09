@@ -225,8 +225,8 @@ end
     omni, ace = Speasy.cda["OMNI_HRO_1MIN"], Speasy.amda["ace-imf-all"]
     @test "flow_speed" in keys(omni) && "imf" in keys(ace)
     # CDA parameter uids carry the dataset; AMDA ones stand alone.
-    @test Speasy._product_id(omni, "flow_speed") == "cda/OMNI_HRO_1MIN/flow_speed"
-    @test Speasy._product_id(ace, "imf") == "amda/imf"
+    @test omni["flow_speed"] == spz"cda/OMNI_HRO_1MIN/flow_speed"
+    @test ace["imf"] == spz"amda/imf"
     @test getmeta(omni)["start_date"] isa String
     t0, t1 = "2016-6-2", "2016-6-2T01"
     @test getdata(ace, t0, t1)["imf"].data == getdata(ace["imf"], t0, t1).data

@@ -12,7 +12,7 @@
 
 ## Features
 
-- Easy access to space physics data with a unified interface [`get_data`](@ref)
+- [`getdata`](https://github.com/JuliaSpacePhysics/SpaceDataModel.jl), shared with other JuliaSpacePhysics packages, plus [`get_data`](@ref) mirroring Python `speasy.get_data`
 - Integration with popular Julia packages like [`DimensionalData.jl`](https://github.com/rafaqz/DimensionalData.jl).
 
 ## Installation
@@ -27,8 +27,7 @@ Pkg.add("Speasy")
 ```julia
 using Speasy
 
-# Get Interplanetary Magnetic Field data
-imf_data = get_data("amda/imf", "2016-6-2", "2016-6-5")
+imf = spz"amda/imf"("2016-6-2", "2016-6-5")
 ```
 
 !!! note "Loading Order"

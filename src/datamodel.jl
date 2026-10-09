@@ -50,7 +50,7 @@ Base.show(io::IO, p::Provider) = print(io, "Speasy.", p.name)
 """
     SpeasyDataset(provider, id)
 
-The dataset `id` of `provider`; `keys` are its parameter ids, `ds[id]` a `Product`.
+The dataset `id` of `provider`; `keys` are its parameter ids, `ds[id]` a [`SpeasyProduct`](@ref).
 """
 struct SpeasyDataset <: AbstractDataset
     provider::Provider
@@ -66,18 +66,14 @@ function _parameters(ds::SpeasyDataset)
     return [String(chopprefix(uid, prefix)) => uid for uid in uids]
 end
 _spz_id(ds::SpeasyDataset, uid) = string(ds.provider.name, "/", uid)
-function _product_id(ds::SpeasyDataset, var)
-    params = _parameters(ds)
-    i = findfirst(==(String(var)) ∘ first, params)
-    isnothing(i) && SpaceDataModel._unknown_id(ds.id, first.(params), var)
-    return _spz_id(ds, last(params[i]))
-end
 
 Base.keys(ds::SpeasyDataset) = first.(_parameters(ds))
 name(ds::SpeasyDataset) = ds.id
 function Base.getindex(ds::SpeasyDataset, var::Union{AbstractString, Symbol})
-    _product_id(ds, var)
-    return Product(ds, var)
+    params = _parameters(ds)
+    i = findfirst(==(String(var)) ∘ first, params)
+    isnothing(i) && SpaceDataModel._unknown_id(ds.id, first.(params), var)
+    return SpeasyProduct(_spz_id(ds, last(params[i])))
 end
 Base.show(io::IO, ds::SpeasyDataset) = print(io, ds.provider, "[", repr(ds.id), "]")
 
@@ -91,8 +87,6 @@ function SpaceDataModel.getdata(ds::SpeasyDataset, t0, t1; kw...)
     params = _parameters(ds)
     return Dict(zip(first.(params), get_data([_spz_id(ds, uid) for (_, uid) in params], t0, t1; kw...)))
 end
-SpaceDataModel.getdata(p::Product{SpeasyDataset}, t0, t1; kw...) =
-    get_data(_product_id(parent(p), p.variable), t0, t1; kw...)
 
 Base.show(io::IO, p::SpeasyProduct) = print(io, "spz", repr(p.id))
 function Base.show(io::IO, ::MIME"text/plain", p::SpeasyProduct)
@@ -105,19 +99,8 @@ end
 
 """
     spz"provider/dataset/parameter"
-    spz"provider/dataset/parameter1,parameter2"
 
-String macro to create a SpeasyProduct from a string identifier.
-Supports multiple parameters separated by commas, which returns a tuple of SpeasyProduct objects.
-
-# Examples
-```julia
-# Single parameter
-product = spz"cda/OMNI_HRO_1MIN/flow_speed"
-
-# Multiple parameters
-products = spz"cda/OMNI_HRO_1MIN/flow_speed,Pressure"
-```
+`SpeasyProduct("provider/dataset/parameter")`.
 """
 macro spz_str(s)
     if contains(s, ",")

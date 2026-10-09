@@ -18,7 +18,7 @@ using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py
 using SpaceDataModel
-using SpaceDataModel: DataSource, AbstractDataset, Product, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
+using SpaceDataModel: DataSource, AbstractDataset, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
 import SpaceDataModel: units, getmeta, name, tdimnum
 import SpaceDataModel: times, OverlayDict
 
@@ -56,7 +56,8 @@ end
 """
     get_data(args...; sanitize = true, layout = :julia, drop_nan = false, kw...)
 
-Get data using `speasy` Python package. We support the same arguments as `speasy.get_data`.
+[`speasy.get_data`](https://speasy.readthedocs.io/en/stable/dev/speasy.html#speasy.get_data) with the same arguments, e.g. a
+`"provider/product"` path, an inventory object, or a vector of them.
 
 `sanitize` masks fill values and values outside the valid range with `NaN`.
 `layout` sets the dimension order; see [`SpeasyVariable`](@ref).
