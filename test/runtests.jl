@@ -222,6 +222,9 @@ end
 @testitem "Provider registry" begin
     @test "OMNI_HRO_1MIN" in keys(Speasy.cda)
     @test_throws "OMNI_HRO_1MIN" Speasy.cda["omni_hro_1min"]
+    using REPL.REPLCompletions: completions, completion_text
+    s = "Speasy.cda[\"OMNI_HRO_1M"
+    @test "\"OMNI_HRO_1MIN\"]" in completion_text.(first(completions(s, lastindex(s), @__MODULE__)))
     omni, ace = Speasy.cda["OMNI_HRO_1MIN"], Speasy.amda["ace-imf-all"]
     @test "flow_speed" in keys(omni) && "imf" in keys(ace)
     # CDA parameter uids carry the dataset; AMDA ones stand alone.

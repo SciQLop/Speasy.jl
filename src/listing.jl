@@ -25,7 +25,7 @@ list_parameters(:cda, "SOHO_ERNE-HED_L2-1MIN")
 
 See also: [`find_datasets`](@ref)
 """
-list_parameters(provider) = String.(_pylines(_inventory(Provider(Symbol(provider))).parameters))
+list_parameters(provider) = _pystrings(_inventory(Provider(Symbol(provider))).parameters)
 
 function list_parameters(provider, dataset; verbose = false)
     ds = Provider(Symbol(provider))[String(dataset)]

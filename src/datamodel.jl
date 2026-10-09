@@ -20,7 +20,13 @@ end
 name(p::SpeasyProduct) = getmeta(p, "name", p.id)
 SpaceDataModel.getdata(p::SpeasyProduct, t0, t1; kw...) = get_data(p.id, t0, t1; kw...)
 
-struct Provider
+"""SpeasyDataset(provider, id)"""
+struct SpeasyDataset{P} <: AbstractDataset
+    provider::P
+    id::String
+end
+
+struct Provider <: AbstractDict{String, SpeasyDataset{Provider}}
     name::Symbol
 end
 
@@ -36,32 +42,50 @@ function _inventory(p::Provider)
     end
     return py.flat_inventory
 end
-# Strings cross from Python newline-joined: one call and one conversion instead of one per element,
-# which dominated the cost.
-_pylines(py) = split(pyconvert(String, @pyconst(pyeval("lambda xs: '\\n'.join(xs)", Main))(py)), '\n'; keepempty = false)
-Base.keys(p::Provider) = String.(_pylines(_inventory(p).datasets))
+# The `str`s of an iterable, read through the C API: ~2x faster than a newline join-and-split
+# and ~3x than per-element `pyconvert` on `keys(Speasy.cda)` (~3k ids).
+# `PythonCall.C` is internal; the names used here also exist on PythonCall's v1 branch.
+const PyC = PythonCall.C
+function _pystrings(py)
+    asutf8 = Libc.Libdl.dlsym(PythonCall.python_library_handle(), :PyUnicode_AsUTF8AndSize)
+    out = String[]
+    n = Ref{PyC.Py_ssize_t}()
+    GC.@preserve py begin
+        it = PyC.PyObject_GetIter(py)
+        it == PyC.PyNULL && PythonCall.Core.pythrow()
+        while (k = PyC.PyIter_Next(it)) != PyC.PyNULL
+            ptr = ccall(asutf8, Ptr{UInt8}, (PyC.PyPtr, Ptr{PyC.Py_ssize_t}), k, n)
+            ptr == C_NULL || push!(out, unsafe_string(ptr, n[]))
+            PyC.Py_DecRef(k)
+            ptr == C_NULL && break
+        end
+        PyC.Py_DecRef(it)
+    end
+    PyC.PyErr_Occurred() == PyC.PyNULL || PythonCall.Core.pythrow()
+    return out
+end
+Base.keys(p::Provider) = _pystrings(_inventory(p).datasets)
 function Base.getindex(p::Provider, id::AbstractString)
     pyin(pystr(id), _inventory(p).datasets) || SpaceDataModel._unknown_id(name(p), keys(p), id)
     return SpeasyDataset(p, String(id))
 end
-name(p::Provider) = String(p.name)
-Base.show(io::IO, p::Provider) = print(io, "Speasy.", p.name)
-
-"""
-    SpeasyDataset(provider, id)
-
-The dataset `id` of `provider`; `keys` are its parameter ids, `ds[id]` a [`SpeasyProduct`](@ref).
-"""
-struct SpeasyDataset <: AbstractDataset
-    provider::Provider
-    id::String
+Base.length(p::Provider) = Int(pylen(_inventory(p).datasets))
+function Base.iterate(p::Provider, (ids, i) = (keys(p), 1))
+    i > length(ids) && return nothing
+    return ids[i] => SpeasyDataset(p, ids[i]), (ids, i + 1)
 end
+name(p::Provider) = String(p.name)
+# `AbstractDict` equality and hashing would walk the whole inventory.
+Base.:(==)(a::Provider, b::Provider) = a.name == b.name
+Base.isequal(a::Provider, b::Provider) = a == b
+Base.hash(p::Provider, h::UInt) = hash(p.name, hash(Provider, h))
+Base.show(io::IO, p::Provider) = print(io, "Speasy.", p.name)
 
 _index(ds::SpeasyDataset) = _inventory(ds.provider).datasets[pystr(ds.id)]
 # Parameter id => uid.
 # The uid is "dataset/parameter" on CDAWeb-like providers but standalone on AMDA, so read it from the index.
 function _parameters(ds::SpeasyDataset)
-    uids = _pylines(@pyconst(pyeval("lambda idx: [p.spz_uid() for p in idx]", Main))(_index(ds)))
+    uids = _pystrings(@pyconst(pyeval("lambda idx: [p.spz_uid() for p in idx]", Main))(_index(ds)))
     prefix = ds.id * "/"
     return [String(chopprefix(uid, prefix)) => uid for uid in uids]
 end
