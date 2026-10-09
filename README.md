@@ -23,6 +23,3 @@ getdata(ds, t0, t1)                                # every parameter, Dict by id
 ```
 
 `get_data` takes the same arguments as Python `speasy.get_data`.
-
-> [!NOTE]
-> It is advisable to load this package before any others, as it relies on OpenSSL underpinnings. Compatibility issues may arise between Python and Julia if it is not prioritized accordingly.
