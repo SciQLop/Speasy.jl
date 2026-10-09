@@ -62,7 +62,6 @@ _haschecks(c::ValidityChecks{C}) where {C} =
 pysanitize(var::Py; drop_out_of_range_values = false, kw...) =
     var.sanitized(; drop_out_of_range_values, kw...)
 
-isprovider(s) = Symbol(s) in (:amda, :cda, :csa, :ssc, :archive)
 contain_provider(s::String) = first(eachsplit(s, "/")) in ("amda", "cda", "csa", "ssc", "archive")
 isspectrogram(var) = getmeta(var, "DISPLAY_TYPE") == "spectrogram"
 

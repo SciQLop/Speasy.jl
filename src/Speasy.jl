@@ -18,12 +18,12 @@ using ConcreteStructs
 import Base: getproperty, summarysize, similar
 import PythonCall: Py
 using SpaceDataModel
-using SpaceDataModel: DataSource, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
+using SpaceDataModel: DataSource, AbstractDataset, Product, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
 import SpaceDataModel: units, getmeta, name, tdimnum
 import SpaceDataModel: times, OverlayDict
 
 export speasy, SpeasyVariable, VariableAxis
-export get_data
+export get_data, getdata
 export times, units, name, getmeta
 export speasyplot, speasyplot!
 export SpeasyProduct

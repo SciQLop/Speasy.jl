@@ -219,6 +219,19 @@ end
     plot(da)
 end
 
+@testitem "Provider registry" begin
+    @test "OMNI_HRO_1MIN" in keys(Speasy.cda)
+    @test_throws "OMNI_HRO_1MIN" Speasy.cda["omni_hro_1min"]
+    omni, ace = Speasy.cda["OMNI_HRO_1MIN"], Speasy.amda["ace-imf-all"]
+    @test "flow_speed" in keys(omni) && "imf" in keys(ace)
+    # CDA parameter uids carry the dataset; AMDA ones stand alone.
+    @test Speasy._product_id(omni, "flow_speed") == "cda/OMNI_HRO_1MIN/flow_speed"
+    @test Speasy._product_id(ace, "imf") == "amda/imf"
+    @test getmeta(omni)["start_date"] isa String
+    t0, t1 = "2016-6-2", "2016-6-2T01"
+    @test getdata(ace, t0, t1)["imf"].data == getdata(ace["imf"], t0, t1).data
+end
+
 @testitem "list_parameters" begin
     # Test listing parameters for a provider
     amda_params = list_parameters(:amda)
@@ -230,6 +243,8 @@ end
     cda_omni_params = list_parameters(:cda, "OMNI_HRO_1MIN"; verbose = true)
     @test cda_omni_params isa Vector{String}
     @test length(cda_omni_params) > 0
+    # AMDA parameter names ("b_gse") differ from their ids
+    @test "imf" in list_parameters(:amda, "ace-imf-all")
 end
 
 @testitem "find_datasets" begin
