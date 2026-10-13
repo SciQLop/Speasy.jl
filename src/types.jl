@@ -10,10 +10,6 @@ abstract type AbstractSupportDataContainer{T, N} <: AbstractDataContainer{T, N} 
     metadata
 end
 
-function Base.similar(A::AbstractDataContainer, ::Type{S}, dims::Dims) where {S}
-    return @set A.data = similar(A.data, S, dims)
-end
-
 """
     SpeasyVariable(py; layout = :julia)
 

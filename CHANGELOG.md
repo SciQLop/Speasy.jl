@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking**: requires SpaceDataModel 0.5. Indexing, `view`, `copy` and broadcasting of a `SpeasyVariable` or `VariableAxis` return a `SpaceDataModel.DataVariable` with the sliced dimensions, metadata, name and units, as TimeseriesUtilities operations (`tclip`, `tinterp`, …) do. They returned a `SpeasyVariable` whose Python object (`.values`, `.time`) still held the unsliced data.
+- **Breaking**: `times` of a `VariableAxis` throws, as it has no time dimension; a time axis is its own times.
+
 ### Added
 
 - Provider registries `Speasy.amda`, `Speasy.cda`, `Speasy.csa`, `Speasy.ssc`, `Speasy.archive`: `keys` lists dataset ids and `provider[id]` is a dataset whose `keys` are parameter ids, with `getmeta`, `getdata` and `ds[parameter]`. Providers initialise on first use. `getdata` is exported.

@@ -15,7 +15,7 @@ using Durations: Timestamp
 using Dates: Nanosecond
 using Dates: AbstractTime, AbstractDateTime
 using ConcreteStructs
-import Base: getproperty, summarysize, similar
+import Base: getproperty, summarysize
 import PythonCall: Py
 using SpaceDataModel
 using SpaceDataModel: DataSource, AbstractDataset, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
@@ -37,7 +37,6 @@ include("methods.jl")
 include("datamodel.jl")
 include("providers.jl")
 include("listing.jl")
-include("array.jl")
 
 const speasy = PythonCall.pynew()
 const speasy_get_data = PythonCall.pynew()
