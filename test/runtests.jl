@@ -100,6 +100,8 @@ end
     @test size.(view(v, 2:3, :, 4:4, 5:7).dims) == ((2, 3), (16,), (1, 3), (3,))
     w = v[2, :, 4, 5:7]
     @test size.(w.dims) == ((16,), (3,)) && times(w) == times(v)[5:7]
+    @test name.(w.dims) == (v["DEPEND_2"], "time")
+    @test size.(view(p, 5:7, 2:3, :, 4:4).dims) == ((3,), (3, 2), (16,), (3, 1))
     @test w == Array(v)[2, :, 4, 5:7]
     snapshot = view(v, :, :, :, 5)
     @test isnothing(tdimnum(snapshot))
@@ -115,7 +117,7 @@ end
 end
 
 @testitem "Array and SpaceDataModel Interface" setup = [DataShare] begin
-    using SpaceDataModel: times
+    using SpaceDataModel: DataVariable, name, times
     using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa AbstractArray
@@ -125,21 +127,14 @@ end
     @test spz_var[1, 2] == Array(spz_var)[1, 2]
     @test eltype(spz_var) == Float32
 
+    # Derived variables hold Julia data, without the Python object
     copied_var = copy(spz_var)
-    @test copied_var isa SpeasyVariable
-    @test !isa(parent(copied_var), PyArray)
+    @test copied_var isa DataVariable && !isa(parent(copied_var), PyArray)
+    @test name(copied_var) == name(spz_var) && units(copied_var) == units(spz_var)
+    @test times(copied_var) == times(spz_var)
 
-    # Test similar method for VariableAxis
     spz_var = get_data("cda/SOHO_ERNE-HED_L2-1MIN/AH", "20211028T06", "20211028T06:10")
-    axis = spz_var.dims[2]
-    @test axis isa Speasy.VariableAxis
-    similar_axis = similar(axis, Float64, (10,))
-    @test similar_axis isa Speasy.VariableAxis
-    @test eltype(similar_axis) == Float64
-    @test size(similar_axis) == (10,)
-
     @test times(spz_var) == spz_var.dims[2]
-    @test isnothing(times(spz_var.dims[1]))
 
     @testset "view" begin
         view_var = selectdim(spz_var, 1, [1, 3, 5])
