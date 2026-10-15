@@ -15,7 +15,7 @@ using Durations: Timestamp
 using Dates: Nanosecond
 using Dates: AbstractTime, AbstractDateTime
 using ConcreteStructs
-import Base: getproperty, summarysize
+import Base: summarysize
 import PythonCall: Py
 using SpaceDataModel
 using SpaceDataModel: DataSource, AbstractDataset, NoMetadata, ValidityChecks, mask_invalid, mask_invalid!
