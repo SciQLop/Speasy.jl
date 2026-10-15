@@ -62,7 +62,3 @@ function SpaceDataModel.units(var::AbstractDataContainer)
     u = @py py.unit
     return pyisnone(u) ? "" : pyconvert(Any, u)
 end
-
-function Base.getproperty(var::T, s::Symbol) where {T <: AbstractDataContainer}
-    return s in fieldnames(T) ? getfield(var, s) : getproperty(var.py, s)
-end

@@ -6,6 +6,7 @@
 
 - **Breaking**: requires SpaceDataModel 0.5. Indexing, `view`, `copy` and broadcasting of a `SpeasyVariable` or `VariableAxis` return a `SpaceDataModel.DataVariable` with the sliced dimensions, metadata, name and units, as TimeseriesUtilities operations (`tclip`, `tinterp`, …) do. They returned a `SpeasyVariable` whose Python object (`.values`, `.time`) still held the unsliced data.
 - **Breaking**: `times` of a `VariableAxis` throws, as it has no time dimension; a time axis is its own times.
+- **Breaking**: `SpeasyVariable` and `VariableAxis` no longer forward property access to the Python object; use `Py(v)`, e.g. `Py(v).values`. Julia data are `parent(v)`, `times(v)` and `getmeta(v)`.
 
 ### Added
 
