@@ -1,32 +1,16 @@
-"""
-    pyconvert_time(times)
-
-Convert `times` from Python to Julia.
-
-Much faster than `pyconvert(Array, times)`
-"""
+# Typed `PyArray` over an int64 view: untyped `PyArray` rejects datetime64 in its `__array_struct__` path
+# and falls back through a caught exception, orders of magnitude slower.
 function pyconvert_time(times)
-    len = length(times)
-    len == 0 && return Timestamp{Nanosecond}[]
-    py_ns = PyArray{Int64, 1, true, true, Int64}(@py times.view("i8"); copy = false)
-    return reinterpret(Timestamp{Nanosecond}, py_ns)
+    ns = @py times.astype("datetime64[ns]", copy = False).view("i8")
+    return reinterpret(Timestamp{Nanosecond}, PyArray{Int64, 1, true, true, Int64}(ns; copy = false))
 end
 
 function py2jlvalues(var; layout = :julia)
     py = @py var.values
-    # Check if the array has byte string dtype (e.g., '|S22')
-    dtype = @py py.dtype
-    dtype_num = pyconvert(Int, @py dtype.num)
-    dtype_num == 21 && return pyconvert_time(py) # datetime64[ns]
-    valid_py = if dtype_num == 18 # string dtype 'S'
-        @py py.astype("U") # Convert byte strings to Unicode strings in Python first
-    elseif dtype_num == 20 # Structured dtype like [('value', '<i8')]
-        view_dtype = field_dtype(dtype)
-        @py py.view(view_dtype)
-    else
-        py
-    end
-    return pyarray(valid_py, layout)
+    kind = pyconvert(Char, @py py.dtype.kind)
+    kind == 'M' && return pyconvert_time(py)
+    kind == 'S' && (py = @py py.astype("U")) # PyArray rejects byte strings
+    return pyarray(py, layout)
 end
 
 # numpy (t, D1, …, Dk), row-major, as Julia (D1, …, Dk, t) without copying. For k ≥ 2 the result is a
@@ -51,8 +35,6 @@ function apply_recursively(data, apply_fn, check_fn)
         return apply_fn(data)
     end
 end
-
-_key_names(p) = nothing
 
 _compat(arg) = string(arg)
 _compat(arg::Py) = arg

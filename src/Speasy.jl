@@ -77,13 +77,10 @@ end
 
 function get_data(::Type{<:NamedTuple}, p, args...; names = nothing, kwargs...)
     data = get_data(p, args...; kwargs...)
-    names = if isnothing(names) && isnothing(_key_names(p))
-        # Handle mixed case where some data is nothing and some is valid
-        map(zip(p, data)) do (param, datum)
+    if isnothing(names)
+        names = map(zip(p, data)) do (param, datum)
             isnothing(datum) ? split(param, '/')[end] : name(datum)
         end
-    else
-        @something names _key_names(p)
     end
     return NamedTuple{Tuple(Symbol.(names))}(data)
 end
