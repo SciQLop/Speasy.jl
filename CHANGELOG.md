@@ -14,6 +14,7 @@
 ### Fixed
 
 - `list_parameters(provider, dataset)` returns parameter ids, usable with `get_data`; on AMDA it returned display names (`"b_gse"` instead of `"imf"`). It, `list_parameters(provider)` and `find_datasets` now initialise the provider when needed.
+- Values with a structured dtype (e.g. `[("value", "<i8")]`) convert instead of throwing.
 
 ## [0.5.0] - 2026-10-06
 

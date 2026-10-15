@@ -9,6 +9,15 @@ using TestItems, TestItemRunner
     Aqua.test_all(Speasy)
 end
 
+@testitem "py2jlvalues dtypes" begin
+    using Speasy.PythonCall, Dates
+    np = pyimport("numpy")
+    values(x) = Speasy.py2jlvalues(pyimport("types").SimpleNamespace(values = x))
+    @test DateTime(only(values(np.array(pylist(["2020-01-01"]), dtype = "datetime64[us]")))) == DateTime(2020)
+    @test values(np.zeros(2, dtype = pylist([("value", "<i8")]))) == [(value = 0,), (value = 0,)]
+    @test values(np.array(pylist(["ab", "cde"]), dtype = "S3")) == ["ab", "cde"]
+end
+
 @testsnippet DataShare begin
     tmin = "2016-6-2"
     tmax = "2016-6-2T02"
