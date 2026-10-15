@@ -2,11 +2,19 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-14
+
 ### Changed
 
 - **Breaking**: requires SpaceDataModel 0.5. Indexing, `view`, `copy` and broadcasting of a `SpeasyVariable` or `VariableAxis` return a `SpaceDataModel.DataVariable` with the sliced dimensions, metadata, name and units, as TimeseriesUtilities operations (`tclip`, `tinterp`, …) do. They returned a `SpeasyVariable` whose Python object (`.values`, `.time`) still held the unsliced data.
 - **Breaking**: `times` of a `VariableAxis` throws, as it has no time dimension; a time axis is its own times.
 - **Breaking**: `SpeasyVariable` and `VariableAxis` no longer forward property access to the Python object; use `Py(v)`, e.g. `Py(v).values`. Julia data are `parent(v)`, `times(v)` and `getmeta(v)`.
+
+### Fixed
+
+- Values with a structured dtype (e.g. `[("value", "<i8")]`) convert instead of throwing.
+
+## [0.5.1] - 2026-10-09
 
 ### Added
 
@@ -15,7 +23,6 @@
 ### Fixed
 
 - `list_parameters(provider, dataset)` returns parameter ids, usable with `get_data`; on AMDA it returned display names (`"b_gse"` instead of `"imf"`). It, `list_parameters(provider)` and `find_datasets` now initialise the provider when needed.
-- Values with a structured dtype (e.g. `[("value", "<i8")]`) convert instead of throwing.
 
 ## [0.5.0] - 2026-10-06
 
