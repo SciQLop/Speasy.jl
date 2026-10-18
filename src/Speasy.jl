@@ -1,10 +1,3 @@
-"""
-A Julia wrapper around `speasy`, a Python package to deal with main Space Physics WebServices.
-
-Space Physics made EASY!
-
-Links: [GitHub](https://github.com/SciQLop/speasy), [Documentation](https://speasy.readthedocs.io/)
-"""
 module Speasy
 
 using ConstructionBase: setproperties
