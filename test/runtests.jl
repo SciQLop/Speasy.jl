@@ -96,7 +96,7 @@ end
     using SpaceDataModel: mask_invalid, ValidityChecks, name, times
     using Speasy.SpaceDataModel: tdimnum
     # numpy (time, phi = DEPEND_1, theta = DEPEND_2, energy = DEPEND_3); phi and energy are time-varying
-    tint = ("2015-10-30T05:14:44", "2015-10-30T05:17:44")
+    tint = ("2015-10-30T05:14:44", "2015-10-30T05:14:46")
     v = get_data("cda/MMS1_FPI_BRST_L2_DES-DIST/mms1_des_dist_brst", tint...; sanitize = false)
     p = SpeasyVariable(v.py; layout = :python) # shares v's memory
     nt = size(p, 1)
@@ -105,13 +105,13 @@ end
     @test isequal(v, PermutedDimsArray(p, (2, 3, 4, 1)))
     @test name.(v.dims) == (v["DEPEND_1"], v["DEPEND_2"], v["DEPEND_3"], "time")
     @test v.dims[1] == p.dims[2]'
-    @test Array(v) == collect(parent(v)) && Array(p) == collect(parent(p))
+    @test Array(v) == parent(v) && Array(p) == parent(p)
     @test size.(view(v, 2:3, :, 4:4, 5:7).dims) == ((2, 3), (16,), (1, 3), (3,))
     w = v[2, :, 4, 5:7]
     @test size.(w.dims) == ((16,), (3,)) && times(w) == times(v)[5:7]
     @test name.(w.dims) == (v["DEPEND_2"], "time")
     @test size.(view(p, 5:7, 2:3, :, 4:4).dims) == ((3,), (3, 2), (16,), (3, 1))
-    @test w == Array(v)[2, :, 4, 5:7]
+    @test w == parent(v)[2, :, 4, 5:7]
     snapshot = view(v, :, :, :, 5)
     @test isnothing(tdimnum(snapshot))
     @test snapshot.dims[1] == v.dims[1][:, 5]
