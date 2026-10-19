@@ -38,7 +38,7 @@ _dims(var, dims) = something(dims, SpaceDataModel.depend_1_dimnum(var), 1)
 
 function SpaceDataModel.mask_invalid(var::SpeasyVariable, c::ValidityChecks, dims = nothing)
     d = _dims(var, dims)
-    return @set var.data = _with_native(A -> mask_invalid(A, c, d), parent(var))
+    return setproperties(var; data = _with_native(A -> mask_invalid(A, c, d), parent(var)))
 end
 
 # Float data are masked in place; integer data become a float copy.

@@ -7,7 +7,7 @@ Links: [GitHub](https://github.com/SciQLop/speasy), [Documentation](https://spea
 """
 module Speasy
 
-using Accessors: @set
+using ConstructionBase: setproperties
 using PythonCall
 using PythonCall: PyArray
 using PythonCall.Core: pyisnone
