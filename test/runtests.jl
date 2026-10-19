@@ -93,7 +93,7 @@ end
 end
 
 @testitem "N-Dimensional data" begin
-    using SpaceDataModel: mask_invalid, ValidityChecks, name, times
+    using SpaceDataModel: mask_invalid, ValidityChecks, name, times, dims
     using Speasy.SpaceDataModel: tdimnum
     # numpy (time, phi = DEPEND_1, theta = DEPEND_2, energy = DEPEND_3); phi and energy are time-varying
     tint = ("2015-10-30T05:14:44", "2015-10-30T05:14:46")
@@ -103,18 +103,18 @@ end
     @test size(v) == (32, 16, 32, nt)
     @test tdimnum(v) == 4
     @test isequal(v, PermutedDimsArray(p, (2, 3, 4, 1)))
-    @test name.(v.dims) == (v["DEPEND_1"], v["DEPEND_2"], v["DEPEND_3"], "time")
-    @test v.dims[1] == p.dims[2]'
+    @test name.(dims(v)) == (v["DEPEND_1"], v["DEPEND_2"], v["DEPEND_3"], "time")
+    @test dims(v, 1) == dims(p, 2)'
     @test Array(v) == parent(v) && Array(p) == parent(p)
-    @test size.(view(v, 2:3, :, 4:4, 5:7).dims) == ((2, 3), (16,), (1, 3), (3,))
+    @test size.(dims(view(v, 2:3, :, 4:4, 5:7))) == ((2, 3), (16,), (1, 3), (3,))
     w = v[2, :, 4, 5:7]
-    @test size.(w.dims) == ((16,), (3,)) && times(w) == times(v)[5:7]
-    @test name.(w.dims) == (v["DEPEND_2"], "time")
-    @test size.(view(p, 5:7, 2:3, :, 4:4).dims) == ((3,), (3, 2), (16,), (3, 1))
+    @test size.(dims(w)) == ((16,), (3,)) && times(w) == times(v)[5:7]
+    @test name.(dims(w)) == (v["DEPEND_2"], "time")
+    @test size.(dims(view(p, 5:7, 2:3, :, 4:4))) == ((3,), (3, 2), (16,), (3, 1))
     @test w == parent(v)[2, :, 4, 5:7]
     snapshot = view(v, :, :, :, 5)
     @test isnothing(tdimnum(snapshot))
-    @test snapshot.dims[1] == v.dims[1][:, 5]
+    @test dims(snapshot, 1) == dims(v, 1)[:, 5]
 
     # Bounds per phi; energy has as many channels, so masking along the wrong dimension differs
     v["VALIDMAX"] = p["VALIDMAX"] = [i <= 16 ? 1.0e-25 : 1.0e9 for i in 1:32]
@@ -126,7 +126,7 @@ end
 end
 
 @testitem "Array and SpaceDataModel Interface" setup = [DataShare] begin
-    using SpaceDataModel: DataVariable, name, times
+    using SpaceDataModel: DataVariable, name, times, dims
     using Speasy.PythonCall: PyArray
     spz_var = get_data("amda/imf", tmin, tmax)
     @test spz_var isa AbstractArray
@@ -148,7 +148,7 @@ end
     @testset "view" begin
         view_var = selectdim(spz_var, 1, [1, 3, 5])
         @test size(view_var) == (3, 10)
-        @test size(view_var.dims[1]) == (3,)
+        @test size(dims(view_var, 1)) == (3,)
         @test times(selectdim(spz_var, 1, 2)) == times(spz_var)
         w = spz_var[2, 3:5]
         @test times(w) == times(spz_var)[3:5]
