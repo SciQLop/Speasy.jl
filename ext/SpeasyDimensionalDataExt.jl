@@ -12,7 +12,7 @@ function DimensionalData.dims(v::SpeasyVariable)
     return ntuple(ndims(v)) do i
         i == t && return Ti(v.dims[i])
         d = v.dims[i]
-        lookup = ndims(d) == 1 ? d : 1:size(v, i)
+        lookup = d isa AbstractVector ? d : 1:size(v, i)
         j = i < t ? i : i - 1
         j == 1 ? Y(lookup) : j == 2 ? Z(lookup) : Dim{Symbol(:dim, j)}(lookup)
     end
