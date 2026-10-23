@@ -39,6 +39,8 @@ function _inventory(p::Provider)
     if pyisnone(py)
         getfield(Speasy, Symbol(:init_, get(_init_names, p.name, p.name)))()
         py = getproperty(speasy, p.name)
+        # Speasy logs the failure and disables the provider instead of raising, e.g. when its server is down.
+        pyisnone(py) && error("Speasy provider `$(p.name)` failed to initialize")
     end
     return py.flat_inventory
 end

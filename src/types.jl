@@ -24,7 +24,7 @@ function SpeasyVariable(py::Py; layout = :julia)
     N = ndims(data)
     dims = ntuple(N) do i
         a = layout === :julia ? mod(i, N) : i - 1 # numpy axis
-        a < len ? VariableAxis(axes[a]; layout) : (1:size(data, i))
+        a < len ? VariableAxis(axes[a]; layout) : nothing
     end
     metadata = OverlayDict{Union{String, Symbol}, Any}(_pymeta(py))
     return SpeasyVariable(py, data, dims, py_name(py), metadata)
@@ -35,7 +35,7 @@ _pymeta(py::Py) = PyDict{String, Any}(@py py.meta)
 # Time is last (`layout = :julia`) or first (`:python`); slicing may have dropped it.
 function SpaceDataModel.tdimnum(var::SpeasyVariable)
     N = ndims(var)
-    istime(i) = eltype(var.dims[i]) <: AbstractDateTime
+    istime(i) = var.dims[i] isa AbstractArray{<:AbstractDateTime}
     return istime(N) ? N : istime(1) ? 1 : nothing
 end
 
