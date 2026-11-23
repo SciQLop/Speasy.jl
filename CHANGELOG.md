@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `sanitize` (the `get_data` default) masks only fill values, matching speasy; values outside `VALIDMIN`/`VALIDMAX` are kept unless masked with `SpaceDataModel.mask_invalid(v)`.
+
 ## [0.6.0] - 2026-10-14
 
 ### Changed

@@ -83,13 +83,12 @@ end
         expected = mask_invalid(Array(v), ValidityChecks(v), layout === :julia ? 1 : 2)
         @test any(isnan, expected)
         @test isequal(Array(mask_invalid(v)), expected)
-        @test isequal(Array(Speasy._sanitize(v)), expected)
+        @test !any(isnan, Speasy._sanitize(v))  # no fill values; out-of-range values are kept
     end
     raw = get_data("cda/OMNI_HRO_1MIN/IMF", "2016-1-1", "2016-1-10"; sanitize = false)  # Int32, FILLVAL 99
-    imf = Speasy._sanitize(raw)
-    @test eltype(imf) == Float64
-    @test isequal(Array(imf), mask_invalid(Array(raw), ValidityChecks(raw)))
-    @test any(isnan, imf)
+    expected = replace(float(Array(raw)), only(raw["FILLVAL"]) => NaN)
+    @test any(isnan, expected)
+    @test isequal(Array(Speasy._sanitize(raw)), expected)
 end
 
 @testitem "N-Dimensional data" begin
@@ -122,7 +121,6 @@ end
     @test any(isnan, expected) && !all(isnan, expected)
     @test isequal(parent(mask_invalid(v)), expected)
     @test isequal(parent(mask_invalid(p)), PermutedDimsArray(expected, (4, 1, 2, 3)))
-    @test isequal(parent(Speasy._sanitize(v)), expected)
 end
 
 @testitem "Array and SpaceDataModel Interface" setup = [DataShare] begin

@@ -45,17 +45,16 @@ end
 function _sanitize(var)
     T = eltype(var)
     T <: Real || return var
-    c = ValidityChecks(var)
-    _haschecks(c) || return var
+    c = ValidityChecks(var; validmin = nothing, validmax = nothing)
+    _hasfill(c) || return var
     T <: AbstractFloat || return mask_invalid(var, c)
     d = _dims(var, nothing)
     _with_native(A -> mask_invalid!(A, A, c, d), parent(var))
     return var
 end
 
-# Absent checks are SpaceDataModel's never-matching sentinels.
-_haschecks(c::ValidityChecks{C}) where {C} =
-    any(!isnan, c.fillval) || any(>(typemin(C)), c.validmin) || any(<(typemax(C)), c.validmax)
+# An absent fill value is SpaceDataModel's never-matching `NaN` sentinel.
+_hasfill(c::ValidityChecks) = any(!isnan, c.fillval)
 
 # _sanitize is more performant than pysanitize, so we make `drop_out_of_range_values` false by default
 # https://github.com/SciQLop/speasy/issues/214 `drop_fill_values` is not supported

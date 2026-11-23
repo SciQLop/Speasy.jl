@@ -51,7 +51,7 @@ end
 [`speasy.get_data`](https://speasy.readthedocs.io/en/stable/dev/speasy.html#speasy.get_data) with the same arguments, e.g. a
 `"provider/product"` path, an inventory object, or a vector of them.
 
-`sanitize` masks fill values and values outside the valid range with `NaN`.
+`sanitize` masks fill values with `NaN`; `SpaceDataModel.mask_invalid(v)` also masks values outside `VALIDMIN`/`VALIDMAX`.
 `layout` sets the dimension order; see [`SpeasyVariable`](@ref).
 
 Set `drop_nan=true` to drop the nan values. Note that we need to do that in Python since we cannot convert `NaT` (not a time) to Julia.
